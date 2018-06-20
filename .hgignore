@@ -1,0 +1,7 @@
+syntax: glob
+Client/bin/
+Client/obj/
+Server/bin/
+Server/obj/
+WPFClient/obj/
+.vs/
