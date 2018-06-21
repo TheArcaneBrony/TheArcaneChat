@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{BBB115CE-7F1D-4FC1-B040-9D2D2E2627E5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPFClient", "WPFClient\WPFClient.csproj", "{E7CA636F-A7F5-4659-9607-95825126DCE5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{BBB115CE-7F1D-4FC1-B040-9D2D2E2627E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BBB115CE-7F1D-4FC1-B040-9D2D2E2627E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BBB115CE-7F1D-4FC1-B040-9D2D2E2627E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7CA636F-A7F5-4659-9607-95825126DCE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7CA636F-A7F5-4659-9607-95825126DCE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7CA636F-A7F5-4659-9607-95825126DCE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7CA636F-A7F5-4659-9607-95825126DCE5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -16,7 +16,7 @@ namespace Server
     {
         public static List<MethodInvoker> InvokeQueue = new List<MethodInvoker>();
         public static List<TcpClient> Clients = new List<TcpClient>();
-            Stopwatch stopWatch = new Stopwatch();
+        public static Stopwatch stopWatch = new Stopwatch();
         public GarbageWindow()
         {
             InitializeComponent();
@@ -25,11 +25,11 @@ namespace Server
         public void Invoke(MethodInvoker inv) => inv.Invoke();
         private void Form1_Load(object sender, EventArgs e)
         {
-            //Hide();
+            Hide();
             this.ShowIcon = false;
-            //this.ShowInTaskbar = false;
-            //this.FormBorderStyle = FormBorderStyle.None;
-
+            this.ShowInTaskbar = false;
+            this.FormBorderStyle = FormBorderStyle.None;
+            stopWatch.Start();
             Console.Title = "TheArcaneChat Server -=- v1.0.0";
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.White;
@@ -37,14 +37,14 @@ namespace Server
 
             serverSocket.Start();
             Console.WriteLine(" >> Server Started");
-            //Visible = false;
+            Visible = false;
             new Timer(s =>
             {
                 if (InvokeQueue.Count >= 1)
                 {
                     try
                     {
-                        InvokeQueue[0].Invoke();
+                       // InvokeQueue[0].Invoke();
                     }
                     catch (Exception exception)
                     {
@@ -56,11 +56,12 @@ namespace Server
             }, null, 0, 100);
             Thread inHandlerThread = new Thread(() =>
             {
+                serverSocket.Server.Listen(1000);
                 while (true)
                 {
                     try
                     {
-                        while (!serverSocket.Pending()) Thread.Sleep(100);
+                        while (!serverSocket.Pending()) Thread.Sleep(10);
                         clientSocket = serverSocket.AcceptTcpClient();
                         Clients.Add(clientSocket);
                         Console.WriteLine($" >> Client No: {counter} started!");
@@ -91,7 +92,7 @@ namespace Server
         {
             try
             {
-                Byte[] sendBytes = Encoding.Unicode.GetBytes(Message);
+                Byte[] sendBytes = Encoding.Unicode.GetBytes(Message.Replace("\n", "\0MSGEND\0") + "\0MSGEND\0");
                 var tmpCli = Clients;
                 foreach (var Client in tmpCli)
                 {
@@ -128,7 +129,7 @@ namespace Server
         {
             try
             {
-                Byte[] sendBytes = Encoding.Unicode.GetBytes("*SYS*: "+Message);
+                Byte[] sendBytes = Encoding.Unicode.GetBytes("*SYS*: "+Message.Replace("\n", "\0MSGEND\0") + "\0MSGEND\0");
                 try
                         {
 
@@ -169,6 +170,7 @@ namespace Server
         }
         private void doChat()
         {
+            DateTime joinTime = DateTime.Now;
             int requestCount = 0;
             byte[] bytesFrom;
             string dataFromClient = null;
@@ -176,7 +178,8 @@ namespace Server
             requestCount = 0;
             int error = 0;
             string username = $"User_{new Random().Next(0,1000)}";
-            GarbageWindow.BroadcastMessage($"Welcome client #{clNo}@{clientSocket.Client.RemoteEndPoint}");
+            GarbageWindow.BroadcastMessage($"Welcome client #{clNo}");
+            Console.WriteLine($"Client #{clNo} connected, IP: {clientSocket.Client.RemoteEndPoint}");
             while (error < 1)
             {
                 Thread.Sleep(100);
@@ -187,7 +190,7 @@ namespace Server
                     bytesFrom = new byte[clientSocket.ReceiveBufferSize];
                     networkStream.Read(bytesFrom, 0, bytesFrom.Length);
                     dataFromClient = System.Text.Encoding.Unicode.GetString(bytesFrom).TrimEnd('\0');
-                    Console.WriteLine(" >> " + "From client-" + clNo + dataFromClient);
+                    Console.WriteLine($" >> From client #{clNo}: {dataFromClient}");
                     if (dataFromClient.StartsWith("\0CLIMSG\0"))
                     {
                         switch (dataFromClient.Replace("\0CLIMSG\0", ""))
@@ -219,19 +222,23 @@ namespace Server
                                 GarbageWindow.WhisperMessage(clientSocket, "Your nickname has been changed to " + username);
                                 break;
                             case "serverinfo":
-                                GarbageWindow.BroadcastMessage($"Bot memory usage: {GC.GetTotalMemory(false)}\nConnection count: {GarbageWindow.Clients}\nHost machine name: {Environment.MachineName}");
+                                    GarbageWindow.BroadcastMessage($"Server memory usage: {GC.GetTotalMemory(false)} bytes\nConnection count: {GarbageWindow.Clients.Count}\nUptime: {GarbageWindow.stopWatch.Elapsed.ToString()}\nHost machine name: {Environment.MachineName}");
                                 break;
+                            case "userinfo":
+                                GarbageWindow.BroadcastMessage($"Client number: {clNo}\nJoin time: {joinTime.ToLongTimeString()}\nConnection time: {DateTime.Now.Subtract(joinTime)}");
+                                break;
+
                             case "default":
 
                                 break;
-
+                            default:
+                                break;
                         }
 
                     }
                     else
                     {
-                        serverResponse = $"{clNo} - {username}: {dataFromClient}";
-                        GarbageWindow.BroadcastMessage(serverResponse);
+                        GarbageWindow.BroadcastMessage($"{clNo} - {username}: {dataFromClient}");
                     }
 
 

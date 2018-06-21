@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
 using System.Runtime;
 using System.Threading;
@@ -29,7 +31,7 @@ namespace WindowsFormsApp2
 
         private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            
+
 
         }
         public void setTitle(string title)
@@ -68,18 +70,30 @@ namespace WindowsFormsApp2
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            GC.TryStartNoGCRegion(0);
             new FormConnecting(this).Show();
             Thread thread = new Thread(()=> {
                 while(true)
                 try
                 {
-                        Thread.Sleep(100);
+                        Thread.Sleep(50);
                     if (serverStream == null) continue;
-                    byte[] inStream = new byte[clientSocket.ReceiveBufferSize];
-                    serverStream.Read(inStream, 0, inStream.Length);
-                    string returndata = System.Text.Encoding.Unicode.GetString(inStream);
-                    Invoke(new MethodInvoker(() => MessageLog.Items.Add(returndata)));
+                    //byte[] inStream = new byte[clientSocket.ReceiveBufferSize];
+                    List<byte> inStream = new List<byte>();
+
+                        //serverStream.Read(inStream, 0, inStream.Length);
+                    while (!System.Text.Encoding.Unicode.GetString(inStream.ToArray()).Contains("\0MSGEND\0"))
+                    {
+                            byte[] inBytes = new byte[1];
+                        serverStream.Read(inBytes, 0, 1);
+                        inStream.AddRange(inBytes);
+                    }
+                        string returndata = System.Text.Encoding.Unicode.GetString(inStream.ToArray()).Replace("\0MSGEND\0","");
+                    Invoke(new MethodInvoker(() =>
+                    {
+                        if (returndata.Contains("\n")) MessageLog.Items.Add(returndata.Replace("\0MSGEND\0", ""));
+                        else MessageLog.Items.AddRange(returndata.Replace("\0MSGEND\0", "").Split("\n".ToCharArray()));
+
+                    }));
                     MessageLog.Refresh();
                     MessageLog.MultiColumn = true;
                     Console.WriteLine(returndata);
@@ -94,7 +108,23 @@ namespace WindowsFormsApp2
         public void init()
         {
             System.Console.WriteLine("INIT");
-            clientSocket.Connect("127.0.0.1", 8888);
+            try
+            {
+#if DEBUG
+                // small delay to wait on server when debugging.
+                Thread.Sleep(500);
+                clientSocket.Connect("127.0.0.1", 8888);
+#else
+            clientSocket.Connect("TheArcaneBrony.ddns.net", 8888);
+#endif
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                setTitle(Title.Text + "(Connection failed!)");
+            }
+
+
             this.serverStream = clientSocket.GetStream();
             byte[] outStream = System.Text.Encoding.Unicode.GetBytes("/nick " + Environment.UserName);
             serverStream.Write(outStream, 0, outStream.Length);

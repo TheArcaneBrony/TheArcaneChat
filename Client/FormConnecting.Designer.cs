@@ -32,17 +32,18 @@
             this.LoadingAnimation = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.LoadingAnimation)).BeginInit();
             this.SuspendLayout();
-            //
+            // 
             // Log
-            //
+            // 
             this.Log.FormattingEnabled = true;
             this.Log.Location = new System.Drawing.Point(94, 8);
             this.Log.Name = "Log";
             this.Log.Size = new System.Drawing.Size(221, 82);
             this.Log.TabIndex = 1;
-            //
+            this.Log.SelectedIndexChanged += new System.EventHandler(this.Log_SelectedIndexChanged);
+            // 
             // LoadingAnimation
-            //
+            // 
             this.LoadingAnimation.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.LoadingAnimation.Image = global::Client.Properties.Resources.Loading;
             this.LoadingAnimation.Location = new System.Drawing.Point(8, 8);
@@ -51,9 +52,9 @@
             this.LoadingAnimation.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.LoadingAnimation.TabIndex = 2;
             this.LoadingAnimation.TabStop = false;
-            //
+            // 
             // FormConnecting
-            //
+            // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(323, 96);

@@ -35,12 +35,16 @@ namespace WindowsFormsApp2
 
             Log.Items.Add(this.mainForm.clientSocket.Connected ? "Connection successful!" : "Connection failed, please check your internet connection!");
             Log.Items.Add($"Username: {Environment.UserName}");
-
             Refresh();
 
             Thread.Yield();
             Thread.Sleep(1000);
             Close();
+        }
+
+        private void Log_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
