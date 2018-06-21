@@ -42,7 +42,7 @@ namespace WPFClient
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
-              //  mainWindow.init(Username.Text);
+                mainWindow.init(Username.Text);
 
                 Log.Items.Add(this.mainWindow.clientSocket.Connected ? "Connection successful!" : "Connection failed, please check your internet connection!");
                 Log.Items.Add($"Username: {Username.Text}");

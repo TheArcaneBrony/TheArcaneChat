@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,10 +12,12 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Application = System.Windows.Forms.Application;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 
 namespace WPFClient
@@ -29,7 +32,7 @@ namespace WPFClient
         public MainWindow()
         {
             InitializeComponent();
-            init("Luxuride");
+            //init("Luxuride");
             Connection();
             Closing += MainWindow_Closing;
         }
@@ -43,7 +46,17 @@ namespace WPFClient
                 serverStream.Close(1000);
             });
             shutdownTask.Start();
+            AllowsTransparency = true;
+            for (float i = 1.0f; i > 0.0; i -= 0.00005f * 250/*0.00005f*/)
+            {
+                Opacity = i;
+                //Console.WriteLine(i + "");
+                Thread.Sleep(1000 / 120);
+            }
+
             shutdownTask.Wait();
+            Application.Exit();
+            Close();
             Environment.Exit(0);
         }
 
@@ -108,18 +121,67 @@ namespace WPFClient
 #else
             clientSocket.Connect("TheArcaneBrony.ddns.net", 8888);
 #endif
-                UserName.Text = $"Connected as {username}";
+                setTitle($"Connected as {username}");
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                UserName.Text = "Connection failed!";
+                setTitle("Connection failed!");
             }
-
 
             serverStream = clientSocket.GetStream();
             byte[] outStream = System.Text.Encoding.Unicode.GetBytes("/nick " + username);
             await serverStream.WriteAsync(outStream, 0, outStream.Length);
         }
+        public void setTitle(string title)
+        {
+          //  Title = $"TheArcaneChat -=- Version {VersionString} -=- {title}";
+            //title.Text = Title;
+            if (false /*hasConsole*/)
+            {
+                Console.Title = "Debug Output | " + title;
+            }
+            Console.WriteLine("Set the window title to: " + title);
+        }
+
+       // Microsoft.Win32.UserPreferenceCategory
+
+
+
+        //WIN API CODE
+        private const int WM_DWMCOLORIZATIONCOLORCHANGED = 0x320;
+        private const int WM_DWMCOMPOSITIONCHANGED = 0x31E;
+        private const int WM_THEMECHANGED = 0x031A;
+
+        protected  void WndProc(ref Message m)
+        {
+            switch (m.Msg)
+            {
+                case WM_DWMCOLORIZATIONCOLORCHANGED:
+                case WM_DWMCOMPOSITIONCHANGED:
+                case WM_THEMECHANGED:
+                    // you code here
+                    break;
+                default:
+                    break;
+            }
+            //base.WndProc(ref m);
+        }
+    }
+    internal static class NativeMethods
+    {
+        [DllImport("dwmapi.dll", EntryPoint = "#127")]
+        internal static extern void DwmGetColorizationParameters(ref DWMCOLORIZATIONPARAMS fuck);
+    }
+
+    public struct DWMCOLORIZATIONPARAMS
+    {
+        public uint ColorizationColor,
+            ColorizationAfterglow,
+            ColorizationColorBalance,
+            ColorizationAfterglowBalance,
+            ColorizationBlurBalance,
+            ColorizationGlassReflectionIntensity,
+            ColorizationOpaqueBlend;
     }
 }
