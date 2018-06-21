@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -32,6 +33,23 @@ namespace WPFClient
         private void ConnectingWindow_Loaded(object sender, RoutedEventArgs e)
         {
             this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        }
+
+        private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        private void LoginButton_Click(object sender, RoutedEventArgs e)
+        {
+              //  mainWindow.init(Username.Text);
+
+                Log.Items.Add(this.mainWindow.clientSocket.Connected ? "Connection successful!" : "Connection failed, please check your internet connection!");
+                Log.Items.Add($"Username: {Username.Text}");
+                this.UpdateLayout();
+                Thread.Yield();
+                Thread.Sleep(1000);
+                Close();
         }
     }
 }
