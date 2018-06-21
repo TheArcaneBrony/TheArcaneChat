@@ -74,39 +74,33 @@ namespace WindowsFormsApp2
             FormConnecting formConnecting = new FormConnecting(this);
             formConnecting.Show();
             formConnecting.TopLevel = true;
-            Thread thread = new Thread(()=> {
+            new Thread(()=> {
                 while(true)
                 try
                 {
-                        Thread.Sleep(50);
+                    Thread.Sleep(100);
                     if (serverStream == null) continue;
-                    //byte[] inStream = new byte[clientSocket.ReceiveBufferSize];
                     List<byte> inStream = new List<byte>();
-
-                        //serverStream.Read(inStream, 0, inStream.Length);
-                    while (!System.Text.Encoding.Unicode.GetString(inStream.ToArray()).Contains("\0MSGEND\0"))
+                    string returndata = "";
+                    while (!returndata.Contains("\0MSGEND\0"))
                     {
-                            byte[] inBytes = new byte[1];
+                        byte[] inBytes = new byte[1];
                         serverStream.Read(inBytes, 0, 1);
                         inStream.AddRange(inBytes);
+                        returndata = System.Text.Encoding.Unicode.GetString(inStream.ToArray());
                     }
-                        string returndata = System.Text.Encoding.Unicode.GetString(inStream.ToArray()).Replace("\0MSGEND\0","");
+                    returndata = returndata.Replace("\0MSGEND\0","");
                     Invoke(new MethodInvoker(() =>
                     {
-                        if (returndata.Contains("\n")) MessageLog.Items.Add(returndata.Replace("\0MSGEND\0", ""));
-                        else MessageLog.Items.AddRange(returndata.Replace("\0MSGEND\0", "").Split("\n".ToCharArray()));
-
+                        MessageLog.Items.Add(returndata);
                     }));
-                    //MessageLog.Refresh();
-                    MessageLog.MultiColumn = true;
                     Console.WriteLine(returndata);
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex);
                 }
-            });
-            thread.Start();
+            }).Start();
         }
         public void init(string username)
         {
@@ -114,8 +108,6 @@ namespace WindowsFormsApp2
             try
             {
 #if DEBUG
-                // small delay to wait on server when debugging.
-                //Thread.Sleep(100);
                 clientSocket.Connect("127.0.0.1", 8888);
 #else
             clientSocket.Connect("TheArcaneBrony.ddns.net", 8888);
