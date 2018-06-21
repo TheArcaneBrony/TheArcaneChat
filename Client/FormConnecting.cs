@@ -25,26 +25,42 @@ namespace WindowsFormsApp2
             this.StartPosition = FormStartPosition.CenterParent;
             this.SetDesktopLocation(mainForm.Left+mainForm.Width/2-Width/2, mainForm.Top+mainForm.Height/2-Height/2);
             mainForm.Visible = true;
-            mainForm.init();
+            //mainForm.init();
             mainForm.Refresh();
             Visible = true;
             //this.mainForm.debugListBox.Items.Add("Client connection status\nIP: "+ clientSocket.GetStream.);
 
            // ActiveForm.TopMost = true;
-            //TopMost = true;
+            TopMost = true;
 
-            Log.Items.Add(this.mainForm.clientSocket.Connected ? "Connection successful!" : "Connection failed, please check your internet connection!");
-            Log.Items.Add($"Username: {Environment.UserName}");
+            //Log.Items.Add(this.mainForm.clientSocket.Connected ? "Connection successful!" : "Connection failed, please check your internet connection!");
+            //Log.Items.Add($"Username: {Environment.UserName}");
             Refresh();
 
-            Thread.Yield();
-            Thread.Sleep(1000);
-            Close();
+            //Thread.Yield();
+            //Thread.Sleep(1000);
+            //Close();
         }
 
         private void Log_SelectedIndexChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void UserNameText_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void LoginButton_Click(object sender, EventArgs e)
+        {
+            mainForm.init(Username.Text);
+            Log.Items.Add(this.mainForm.clientSocket.Connected ? "Connection successful!" : "Connection failed, please check your internet connection!");
+            Log.Items.Add($"Username: {Username.Text}");
+            Refresh();
+            Thread.Yield();
+            Thread.Sleep(1000);
+            Close();
         }
     }
 }

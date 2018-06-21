@@ -30,6 +30,9 @@
         {
             this.Log = new System.Windows.Forms.ListBox();
             this.LoadingAnimation = new System.Windows.Forms.PictureBox();
+            this.UserNameText = new System.Windows.Forms.Label();
+            this.LoginButton = new System.Windows.Forms.Button();
+            this.Username = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.LoadingAnimation)).BeginInit();
             this.SuspendLayout();
             // 
@@ -53,11 +56,41 @@
             this.LoadingAnimation.TabIndex = 2;
             this.LoadingAnimation.TabStop = false;
             // 
+            // UserNameText
+            // 
+            this.UserNameText.AutoSize = true;
+            this.UserNameText.Location = new System.Drawing.Point(8, 102);
+            this.UserNameText.Name = "UserNameText";
+            this.UserNameText.Size = new System.Drawing.Size(58, 13);
+            this.UserNameText.TabIndex = 3;
+            this.UserNameText.Text = "Username:";
+            this.UserNameText.Click += new System.EventHandler(this.UserNameText_Click);
+            // 
+            // LoginButton
+            // 
+            this.LoginButton.Location = new System.Drawing.Point(259, 97);
+            this.LoginButton.Name = "LoginButton";
+            this.LoginButton.Size = new System.Drawing.Size(56, 22);
+            this.LoginButton.TabIndex = 4;
+            this.LoginButton.Text = "Log in";
+            this.LoginButton.UseVisualStyleBackColor = true;
+            this.LoginButton.Click += new System.EventHandler(this.LoginButton_Click);
+            // 
+            // Username
+            // 
+            this.Username.Location = new System.Drawing.Point(72, 98);
+            this.Username.Name = "Username";
+            this.Username.Size = new System.Drawing.Size(181, 20);
+            this.Username.TabIndex = 5;
+            // 
             // FormConnecting
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(323, 96);
+            this.ClientSize = new System.Drawing.Size(323, 127);
+            this.Controls.Add(this.Username);
+            this.Controls.Add(this.LoginButton);
+            this.Controls.Add(this.UserNameText);
             this.Controls.Add(this.LoadingAnimation);
             this.Controls.Add(this.Log);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
@@ -72,12 +105,16 @@
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.LoadingAnimation)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
         private System.Windows.Forms.ListBox Log;
         private System.Windows.Forms.PictureBox LoadingAnimation;
+        private System.Windows.Forms.Label UserNameText;
+        private System.Windows.Forms.Button LoginButton;
+        private System.Windows.Forms.TextBox Username;
     }
 }
 

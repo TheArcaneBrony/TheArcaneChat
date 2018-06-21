@@ -11,6 +11,7 @@ namespace WindowsFormsApp2
 {
     public partial class MainWindow : Form
     {
+        public static string VersionString = "v1.0.0";
         public System.Net.Sockets.TcpClient clientSocket = new System.Net.Sockets.TcpClient();
         NetworkStream serverStream;
         public MainWindow()
@@ -36,8 +37,8 @@ namespace WindowsFormsApp2
         }
         public void setTitle(string title)
         {
-            Text = title;
-            Title.Text = title;
+            Text = $"TheArcaneChat -=- Version {VersionString} -=- {title}";
+            Title.Text = Text;
             if (false /*hasConsole*/)
             {
                 Console.Title = "Debug Output | " + title;
@@ -48,7 +49,7 @@ namespace WindowsFormsApp2
         {
             Task shutdownTask = new Task(() =>
             {
-
+                Notification.Visible = false;
                 byte[] outStream = System.Text.Encoding.Unicode.GetBytes("\0CLIMSG\0exit");
                 serverStream.Write(outStream, 0, outStream.Length);
                 serverStream.Close(1000);
@@ -70,7 +71,9 @@ namespace WindowsFormsApp2
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            new FormConnecting(this).Show();
+            FormConnecting formConnecting = new FormConnecting(this);
+            formConnecting.Show();
+            formConnecting.TopLevel = true;
             Thread thread = new Thread(()=> {
                 while(true)
                 try
@@ -94,7 +97,7 @@ namespace WindowsFormsApp2
                         else MessageLog.Items.AddRange(returndata.Replace("\0MSGEND\0", "").Split("\n".ToCharArray()));
 
                     }));
-                    MessageLog.Refresh();
+                    //MessageLog.Refresh();
                     MessageLog.MultiColumn = true;
                     Console.WriteLine(returndata);
                 }
@@ -105,28 +108,29 @@ namespace WindowsFormsApp2
             });
             thread.Start();
         }
-        public void init()
+        public void init(string username)
         {
             System.Console.WriteLine("INIT");
             try
             {
 #if DEBUG
                 // small delay to wait on server when debugging.
-                Thread.Sleep(500);
+                //Thread.Sleep(100);
                 clientSocket.Connect("127.0.0.1", 8888);
 #else
             clientSocket.Connect("TheArcaneBrony.ddns.net", 8888);
 #endif
+                setTitle($"Connected as {username}");
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                setTitle(Title.Text + "(Connection failed!)");
+                setTitle("(Connection failed!)");
             }
 
 
             this.serverStream = clientSocket.GetStream();
-            byte[] outStream = System.Text.Encoding.Unicode.GetBytes("/nick " + Environment.UserName);
+            byte[] outStream = System.Text.Encoding.Unicode.GetBytes("/nick " + username);
             serverStream.Write(outStream, 0, outStream.Length);
 
         }

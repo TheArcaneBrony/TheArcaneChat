@@ -56,7 +56,7 @@ namespace Server
             }, null, 0, 100);
             Thread inHandlerThread = new Thread(() =>
             {
-                serverSocket.Server.Listen(1000);
+                //serverSocket.Server.Listen(1000);
                 while (true)
                 {
                     try
