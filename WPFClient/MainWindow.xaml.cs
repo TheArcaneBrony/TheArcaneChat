@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
@@ -41,25 +42,33 @@ namespace WPFClient
         {
             InitializeComponent();
 
-            this.Show();
+            Show();
             init("Luxuride");
             ConnectingWindow cw = new ConnectingWindow(this);
-            cw.Show();
-            Activated += (sender, args) => {
+            //cw.Show();
+            Activated += (sender, args) =>
+            {
                 if (cw.IsVisible) cw.Activate();
             };
             Connection();
             Closing += MainWindow_Closing;
-            MouseDown += (sender, args) => { CloseButton.Tag = (args.OriginalSource == CloseButton) ? "hit" : "";};
+            MouseDown += (sender, args) => { CloseButton.Tag = (args.OriginalSource == CloseButton) ? "hit" : ""; };
 
-        CloseButton.MouseUp += (sender, args) => { if(CloseButton.Tag == "hit") shutdown(); };
+            CloseButton.MouseUp += (sender, args) =>
+            {
+                if (CloseButton.Tag == "hit") shutdown();
+            };
             Titlebar.MouseDown += TitlebarOnMouseDown;
-
+            slider.ValueChanged += (sender, args) =>
+            {
+                Opacity = args.NewValue;
+                setTitle(""+args.NewValue);
+            };
         }
 
         private void TitlebarOnMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if(e.MouseDevice.DirectlyOver != CloseButton) { DragMove(); }
+            if(e.MouseDevice.DirectlyOver != CloseButton && e.LeftButton == MouseButtonState.Pressed) { DragMove(); }
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -94,7 +103,7 @@ namespace WPFClient
             Storyboard.SetTarget(sb, Titlebar);
             Storyboard.SetTargetProperty(sb, new PropertyPath(System.Windows.Controls.Control.OpacityProperty));
 
-            sb.Begin();
+//            sb.Begin();
 
             sb.Completed += delegate (object sender, EventArgs e)
             {
@@ -105,30 +114,29 @@ namespace WPFClient
                 byte[] outStream = System.Text.Encoding.Unicode.GetBytes("\0CLIMSG\0exit");
                 serverStream.Write(outStream, 0, outStream.Length);
                 serverStream.Close(1000);
-               /* Dispatcher.Invoke(() => {
-                    for (float i = 1.0f; i > 0.0; i -= 0.00005f * 250/*0.00005f*///)
-                   /* {
-                        Opacity = i;
-                        InvalidateVisual();
-                        UpdateLayout();
-                        //Console.WriteLine(i + "");
-                        Thread.Sleep(1000 / 120);
-                    }
-                });*/
+                for (float i = 1.0f; i > 0.0; i -= 0.00005f * 250/*0.00005f*/)
+                {
+                Dispatcher.Invoke(() => { Opacity = i; });
+                    Action emptyDelegate = delegate { };
+                    Dispatcher.Invoke(emptyDelegate, DispatcherPriority.Render);
+                    Thread.Sleep(1000 / 12);
 
-                Thread.Sleep(5000);
+                }
             });
             shutdownTask.Start();
-
-
+            shutdownTask.Wait(1500);
 
             //Thread.Sleep(3000);
-            shutdownTask.Wait(5000);
             Application.Exit();
-            //Close();
             Environment.Exit(0);
         }
-
+        public static Color ToColor(uint argb)
+        {
+            return Color.FromArgb((byte)((argb & -16777216) >> 0x18),
+                (byte)((argb & 0xff0000) >> 0x10),
+                (byte)((argb & 0xff00) >> 8),
+                (byte)(argb & 0xff));
+        }
         private async void TxbInput_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
@@ -142,9 +150,9 @@ namespace WPFClient
         {
             if (TxbInput.Text.Length >= 0)
             {
-                byte[] sendBite = System.Text.Encoding.Unicode.GetBytes(TxbInput.Text);
+                byte[] sendBytes = System.Text.Encoding.Unicode.GetBytes(TxbInput.Text);
                 TxbInput.Text = null;
-                await serverStream.WriteAsync(sendBite, 0, sendBite.Length);
+                serverStream.Write(sendBytes, 0, sendBytes.Length);
             }
         }
         protected void OnMouseDown(MouseEventArgs e)
@@ -155,7 +163,6 @@ namespace WPFClient
 
         private void Connection()
         {
-
             new Thread(() =>
             {
                 while (true)
@@ -204,6 +211,8 @@ namespace WPFClient
             serverStream = clientSocket.GetStream();
             byte[] outStream = System.Text.Encoding.Unicode.GetBytes("/nick " + username);
             await serverStream.WriteAsync(outStream, 0, outStream.Length);
+
+            //shutdown();
         }
         public void setTitle(string title)
         {

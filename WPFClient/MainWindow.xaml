@@ -5,21 +5,24 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPFClient"
         mc:Ignorable="d"
-        Title="TheArcaneChat [WPF] -=- v0.0.1" Height="355" Width="661" AutomationProperties.Name="Test" AllowsTransparency="True" WindowStyle="None" Opacity="1">
+        Title="TheArcaneChat [WPF] -=- v0.0.1" Height="355" Width="661" AutomationProperties.Name="Test" AllowsTransparency="True" WindowStyle="None" Foreground="Red">
+    <Window.OpacityMask>
+        <SolidColorBrush Color="Black"/>
+    </Window.OpacityMask>
     <Grid>
         <Grid Margin="0,30,100,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <ListBox x:Name="LbChat" Margin="10,41,10,40"/>
-            <TextBox x:Name="TxbInput" Margin="10,0,50,17" TextWrapping="Wrap" SpellCheck.IsEnabled="True" VerticalAlignment="Bottom" KeyDown="TxbInput_KeyDown"/>
-            <Button x:Name="BtnSend" Content="Send" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="20" MinWidth="30" Margin="0,0,5,17" MouseLeftButtonDown="BtnSend_MouseLeftButtonDown" Height="18"/>
+            <ListBox x:Name="LbChat" Margin="0,0,0,18"/>
+            <TextBox x:Name="TxbInput" Margin="0,0,30,0" TextWrapping="Wrap" SpellCheck.IsEnabled="True" VerticalAlignment="Bottom" KeyDown="TxbInput_KeyDown"/>
+            <Button x:Name="BtnSend" Content="Send" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="20" MinWidth="30" MouseLeftButtonDown="BtnSend_MouseLeftButtonDown" Height="18"/>
         </Grid>
-        <Grid HorizontalAlignment="Right" MinWidth="100">
-            <ListBox x:Name="ListBoxOnline" Margin="0,41,0,0"/>
+        <Grid HorizontalAlignment="Right" MinWidth="100" Margin="0,30,0,0">
+            <ListBox x:Name="ListBoxOnline"/>
         </Grid>
         <Grid x:Name="Titlebar" Height="30" VerticalAlignment="Top" Margin="0">
-            <Rectangle x:Name="TitleBar" Stroke="Black" Fill="#FF005DFF"/>
+            <Rectangle x:Name="TitleBar" Fill="#FF005DFF"/>
             <Rectangle x:Name="CloseButton" Margin="0" Height="30" Width="30" HorizontalAlignment="Right" VerticalAlignment="Top" Stroke="Black">
                 <Rectangle.Fill>
                     <ImageBrush ImageSource="Resources/CloseButton.png" Stretch="UniformToFill"/>
@@ -27,6 +30,7 @@
             </Rectangle>
             <Label x:Name="WindowTitle" Content="Label" HorizontalAlignment="Left" VerticalAlignment="Top"/>
         </Grid>
+        <Slider x:Name="slider" Margin="83,137,258,200"/>
     </Grid>
 
 </Window>
