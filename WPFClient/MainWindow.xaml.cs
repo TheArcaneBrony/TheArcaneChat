@@ -35,20 +35,20 @@ namespace WPFClient
         public MainWindow()
         {
             InitializeComponent();
-            init("Luxuride");
             ConnectingWindow cw = new ConnectingWindow(this);
             cw.Show();
+            Visibility = Visibility.Hidden;
             Connection();
             Closing += MainWindow_Closing;
-            CloseButton.MouseUp += (sender, args) => { shutdown(); };
+            CloseButton.MouseUp += (sender, args) => { Shutdown(); };
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-         shutdown();
+         Shutdown();
         }
 
-        public void shutdown()
+        public void Shutdown()
         {/*
             var animation = new DoubleAnimation
             {
@@ -84,7 +84,7 @@ namespace WPFClient
             Task shutdownTask = new Task(() =>
             {
                 byte[] outStream = System.Text.Encoding.Unicode.GetBytes("\0CLIMSG\0exit");
-                serverStream.Write(outStream, 0, outStream.Length);
+                serverStream.WriteAsync(outStream, 0, outStream.Length).GetAwaiter().GetResult();
                 serverStream.Close(1000);
                /* Dispatcher.Invoke(() => {
                     for (float i = 1.0f; i > 0.0; i -= 0.00005f * 250/*0.00005f*///)
@@ -96,8 +96,6 @@ namespace WPFClient
                         Thread.Sleep(1000 / 120);
                     }
                 });*/
-                
-                Thread.Sleep(5000);
             });
             shutdownTask.Start();
 
@@ -159,7 +157,7 @@ namespace WPFClient
                     }
             }).Start();
         }
-        public async void init(string username)
+        public async void Init(string username)
         {
             System.Console.WriteLine("INIT");
             try
@@ -169,19 +167,19 @@ namespace WPFClient
 #else
             clientSocket.Connect("TheArcaneBrony.ddns.net", 8888);
 #endif
-                setTitle($"Connected as {username}");
+                SetTitle($"Connected as {username}");
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                setTitle("Connection failed!");
+                SetTitle("Connection failed!");
             }
 
             serverStream = clientSocket.GetStream();
             byte[] outStream = System.Text.Encoding.Unicode.GetBytes("/nick " + username);
             await serverStream.WriteAsync(outStream, 0, outStream.Length);
         }
-        public void setTitle(string title)
+        public void SetTitle(string title)
         {
           //  Title = $"TheArcaneChat -=- Version {VersionString} -=- {title}";
             //title.Text = Title;

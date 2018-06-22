@@ -25,6 +25,7 @@ namespace WPFClient
         public ConnectingWindow(MainWindow parent)
         {
             InitializeComponent();
+            
             mainWindow = parent;
             this.Loaded += ConnectingWindow_Loaded;
 
@@ -42,14 +43,23 @@ namespace WPFClient
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
-                mainWindow.init(Username.Text);
-
-                Log.Items.Add(this.mainWindow.clientSocket.Connected ? "Connection successful!" : "Connection failed, please check your internet connection!");
-                Log.Items.Add($"Username: {Username.Text}");
-                this.UpdateLayout();
-                Thread.Yield();
-                Thread.Sleep(1000);
-                Close();
+            Login();
+        }
+        private void Username_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+                Login();
+        }
+        private void Login()
+        {
+            mainWindow.Init(Username.Text);
+            Log.Items.Add(this.mainWindow.clientSocket.Connected ? "Connection successful!" : "Connection failed, please check your internet connection!");
+            Log.Items.Add($"Username: {Username.Text}");
+            this.UpdateLayout();
+            mainWindow.Visibility = Visibility.Visible;
+            Thread.Yield();
+            Thread.Sleep(1000);
+            Close();
         }
     }
 }
