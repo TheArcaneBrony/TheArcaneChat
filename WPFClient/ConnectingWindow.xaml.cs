@@ -25,15 +25,19 @@ namespace WPFClient
         public ConnectingWindow(MainWindow parent)
         {
             InitializeComponent();
-            
+            //this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+
+
             mainWindow = parent;
+            this.Left = parent.Left + parent.Width / 2 - Width / 2;
+            this.Top = parent.Top + parent.Height/ 2 - Height / 2;
             this.Loaded += ConnectingWindow_Loaded;
 
         }
 
         private void ConnectingWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+
         }
 
         private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -52,7 +56,7 @@ namespace WPFClient
         }
         private void Login()
         {
-            mainWindow.Init(Username.Text);
+            mainWindow.init(Username.Text);
             Log.Items.Add(this.mainWindow.clientSocket.Connected ? "Connection successful!" : "Connection failed, please check your internet connection!");
             Log.Items.Add($"Username: {Username.Text}");
             this.UpdateLayout();

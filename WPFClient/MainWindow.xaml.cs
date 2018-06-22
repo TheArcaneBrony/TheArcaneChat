@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Channels;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,29 +32,34 @@ namespace WPFClient
     /// </summary>
     public partial class MainWindow : Window
     {
+        public string VersionString = "v1.0.0";
+
         public System.Net.Sockets.TcpClient clientSocket = new System.Net.Sockets.TcpClient();
         NetworkStream serverStream;
 
         public MainWindow()
         {
             InitializeComponent();
+
+            this.Show();
             init("Luxuride");
             ConnectingWindow cw = new ConnectingWindow(this);
             cw.Show();
+            Activated += (sender, args) => {
+                if (cw.IsVisible) cw.Activate();
+            };
             Connection();
             Closing += MainWindow_Closing;
-            CloseButton.MouseUp += (sender, args) => { shutdown(); };
+            MouseDown += (sender, args) => { CloseButton.Tag = (args.OriginalSource == CloseButton) ? "hit" : "";};
+
+        CloseButton.MouseUp += (sender, args) => { if(CloseButton.Tag == "hit") shutdown(); };
             Titlebar.MouseDown += TitlebarOnMouseDown;
+
         }
 
         private void TitlebarOnMouseDown(object sender, MouseButtonEventArgs e)
         {
-            base.OnMouseDown(e);
-            if (e.ChangedButton == MouseButton.Left)
-            {
-                //this.Capture = false;
-                this.WndProc(null /*this.Handle*/, 0XA1, new IntPtr(2), IntPtr.Zero, ref _contentLoaded);
-            }
+            if(e.MouseDevice.DirectlyOver != CloseButton) { DragMove(); }
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -201,8 +207,8 @@ namespace WPFClient
         }
         public void setTitle(string title)
         {
-          //  Title = $"TheArcaneChat -=- Version {VersionString} -=- {title}";
-            //title.Text = Title;
+            Title = $"TheArcaneChat [WPF] -=- Version {VersionString} -=- {title}";
+            WindowTitle.Content = Title;
             if (false /*hasConsole*/)
             {
                 Console.Title = "Debug Output | " + title;
