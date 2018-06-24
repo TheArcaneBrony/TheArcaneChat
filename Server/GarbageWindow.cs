@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Media;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Xml;
 using Timer = System.Threading.Timer;
 
 namespace Server
@@ -26,50 +26,48 @@ namespace Server
         private void Form1_Load(object sender, EventArgs e)
         {
             Hide();
-            this.ShowIcon = false;
-            this.ShowInTaskbar = false;
-            this.FormBorderStyle = FormBorderStyle.None;
+            ShowIcon = false;
+            ShowInTaskbar = false;
+            FormBorderStyle = FormBorderStyle.None;
             stopWatch.Start();
             Console.Title = "TheArcaneChat Server -=- v1.0.0";
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.White;
             Console.Clear();
 
-            serverSocket.Start();
+            ServerSocket.Start();
             Console.WriteLine(" >> Server Started");
             Visible = false;
-            new Timer(s =>
+            var timer = new Timer(s =>
             {
-                if (InvokeQueue.Count >= 1)
+                if (InvokeQueue.Count < 1) return;
+                try
                 {
-                    try
-                    {
-                       // InvokeQueue[0].Invoke();
-                    }
-                    catch (Exception exception)
-                    {
-                        Console.WriteLine(exception);
-                    }
-
-                    InvokeQueue.RemoveAt(0);
+                    // InvokeQueue[0].Invoke();
                 }
+                catch (Exception exception)
+                {
+                    Console.WriteLine(exception);
+                }
+
+                InvokeQueue.RemoveAt(0);
             }, null, 0, 100);
-            Thread inHandlerThread = new Thread(() =>
+            new Thread(() =>
             {
                 //serverSocket.Server.Listen(1000);
                 while (true)
                 {
                     try
                     {
-                        while (!serverSocket.Pending()) Thread.Sleep(10);
-                        clientSocket = serverSocket.AcceptTcpClient();
-                        Clients.Add(clientSocket);
-                        Console.WriteLine($" >> Client No: {counter} started!");
-                        counter += 1;
-                        new handleClient().startClient(clientSocket, Convert.ToString(counter));
+                        while (!ServerSocket.Pending()) Thread.Sleep(10);
+                        ClientSocket = ServerSocket.AcceptTcpClient();
+                        Clients.Add(ClientSocket);
+                        Console.WriteLine($" >> Client No: {_counter} started!");
+                        _counter += 1;
+                        new HandleClient().StartClient(ClientSocket, Convert.ToString(_counter));
                         new Task(()=>
                         {
-                            new System.Media.SoundPlayer(@"C:\Windows\Media\Windows Proximity Notification.wav").Play();
+                            new SoundPlayer(@"C:\Windows\Media\Windows Proximity Notification.wav").Play();
                             //Console.Beep(1000, 50);
                             //Console.Beep();
                             //Console.Beep(1500, 50);
@@ -82,45 +80,45 @@ namespace Server
                     }
                 }
 
-            });
-            inHandlerThread.Start();
+            }).Start();
         }
-        TcpListener serverSocket = new TcpListener(IPAddress.Any, 8888);
-        TcpClient clientSocket = default(TcpClient);
-        int counter = 0;
+
+        public TcpListener ServerSocket = new TcpListener(IPAddress.Any, 8888);
+        public TcpClient ClientSocket = default;
+        private int _counter;
         public static void BroadcastMessage(string Message)
         {
             try
             {
-                Byte[] sendBytes = Encoding.Unicode.GetBytes(Message.Replace("\n", "\0MSGEND\0") + "\0MSGEND\0");
+                var sendBytes = Encoding.Unicode.GetBytes(Message.Replace("\n", "\0MSGEND\0") + "\0MSGEND\0");
                 var tmpCli = Clients;
-                foreach (var Client in tmpCli)
+                foreach (var client in tmpCli)
                 {
-                    Task MsgSend = new Task(() =>
+                    var msgSend = new Task(() =>
                     {
-                        var Cl = Client;
+                        var cl = client;
                         try
                         {
 
-                            NetworkStream networkStream = Cl.GetStream();
+                            var networkStream = cl.GetStream();
                             networkStream.Write(sendBytes, 0, sendBytes.Length);
                         }
-                        catch (Exception e)
+                        catch
                         {
-                            Clients.Remove(Cl);
+                            Clients.Remove(cl);
 
-                            GarbageWindow.BroadcastMessage($"A client has logged off! (MessageTransmitFailedException!)");
+                            BroadcastMessage($"A client has logged off! (MessageTransmitFailedException!)");
                         }
                     });
-                    MsgSend.Start();
-                    MsgSend.Wait(500);
+                    msgSend.Start();
+                    //msgSend.Wait(500);
                 }
                 Console.WriteLine(" >> " + Message);
 
             }
-            catch (Exception e)
+            catch
             {
-
+                // ignored
             }
 
             InvokeQueue.Add(() => ConnectionCount.Text = $"Connected clients: {Clients.Count}");
@@ -129,77 +127,74 @@ namespace Server
         {
             try
             {
-                Byte[] sendBytes = Encoding.Unicode.GetBytes("*SYS*: "+Message.Replace("\n", "\0MSGEND\0") + "\0MSGEND\0");
+                var sendBytes = Encoding.Unicode.GetBytes("*SYS*: "+Message.Replace("\n", "\0MSGEND\0") + "\0MSGEND\0");
                 try
                         {
 
-                            NetworkStream networkStream = Client.GetStream();
+                            var networkStream = Client.GetStream();
                             networkStream.Write(sendBytes, 0, sendBytes.Length);
                         }
-                        catch (Exception e)
+                        catch
                         {
                             //Clients.Remove(Client);
                             Console.WriteLine("WTF? Whisper failed!");
-                           // GarbageWindow.BroadcastMessage($"A client has logged off! (MessageTransmitFailedException!)");
+                            // GarbageWindow.BroadcastMessage($"A client has logged off! (MessageTransmitFailedException!)");
                         }
 
                 Console.WriteLine(" >> " + Message);
             }
-            catch (Exception e)
+            catch
             {
-
+                // ignored
             }
         }
 
-        private void label1_Click(object sender, EventArgs e)
+        private void Label1_Click(object sender, EventArgs e)
         {
 
         }
     }
     //Class to handle each client request separatly
-    public class handleClient
+    public class HandleClient
     {
-        TcpClient clientSocket;
-        string clNo;
-        public void startClient(TcpClient inClientSocket, string cliNo)
+        TcpClient _clientSocket;
+        string _clNo;
+        public void StartClient(TcpClient inClientSocket, string cliNo)
         {
-            this.clientSocket = inClientSocket;
-            this.clNo = cliNo;
-            Thread ctThread = new Thread(doChat);
+            _clientSocket = inClientSocket;
+            _clNo = cliNo;
+            var ctThread = new Thread(DoChat);
             ctThread.Start();
         }
-        private void doChat()
+        private void DoChat()
         {
-            DateTime joinTime = DateTime.Now;
-            int requestCount = 0;
-            byte[] bytesFrom;
-            string dataFromClient = null;
-            string serverResponse = null;
+            var joinTime = DateTime.Now;
+            var requestCount = 0;
             requestCount = 0;
-            int error = 0;
-            string username = $"User_{new Random().Next(0,1000)}";
-            GarbageWindow.BroadcastMessage($"Welcome client #{clNo}");
-            Console.WriteLine($"Client #{clNo} connected, IP: {clientSocket.Client.RemoteEndPoint}");
+            var error = 0;
+            var username = $"User_{new Random().Next(0,1000)}";
+            GarbageWindow.BroadcastMessage($"Welcome client #{_clNo}");
+            Console.WriteLine($"Client #{_clNo} connected, IP: {_clientSocket.Client.RemoteEndPoint}");
             while (error < 1)
             {
                 Thread.Sleep(100);
                 try
                 {
                     requestCount = requestCount + 1;
-                    NetworkStream networkStream = clientSocket.GetStream();
-                    bytesFrom = new byte[clientSocket.ReceiveBufferSize];
+                    var networkStream = _clientSocket.GetStream();
+                    var bytesFrom = new byte[_clientSocket.ReceiveBufferSize];
                     networkStream.Read(bytesFrom, 0, bytesFrom.Length);
-                    dataFromClient = System.Text.Encoding.Unicode.GetString(bytesFrom).TrimEnd('\0');
-                    Console.WriteLine($" >> From client #{clNo}: {dataFromClient}");
+                    string dataFromClient = Encoding.Unicode.GetString(bytesFrom).TrimEnd('\0');
+                    Console.WriteLine($" >> From client #{_clNo}: {dataFromClient}");
                     if (dataFromClient.StartsWith("\0CLIMSG\0"))
                     {
                         switch (dataFromClient.Replace("\0CLIMSG\0", ""))
                         {
                             case "exit":
                                 networkStream.Close();
-                                GarbageWindow.Clients.Remove(clientSocket);
+                                GarbageWindow.Clients.Remove(_clientSocket);
 
-                                GarbageWindow.BroadcastMessage($"Client { clNo } logged off!");
+                                GarbageWindow.BroadcastMessage($"Client { _clNo } logged off!");
                                 break;
                         }
 
@@ -214,20 +209,27 @@ namespace Server
                                 break;
                             case "exit":
                                 networkStream.Close();
-                                GarbageWindow.Clients.Remove(clientSocket);
-                                GarbageWindow.BroadcastMessage($"Client { clNo } logged off!");
+                                GarbageWindow.Clients.Remove(_clientSocket);
+                                GarbageWindow.BroadcastMessage($"Client { _clNo } logged off!");
                                 break;
                             case "nick":
                                 username = dataFromClient.Split(" ".ToCharArray(), 2)[1];
-                                GarbageWindow.WhisperMessage(clientSocket, "Your nickname has been changed to " + username);
+                                GarbageWindow.WhisperMessage(_clientSocket, "Your nickname has been changed to " + username);
                                 break;
                             case "serverinfo":
                                     GarbageWindow.BroadcastMessage($"Server memory usage: {GC.GetTotalMemory(false)} bytes\nConnection count: {GarbageWindow.Clients.Count}\nUptime: {GarbageWindow.stopWatch.Elapsed.ToString()}\nHost machine name: {Environment.MachineName}");
                                 break;
                             case "userinfo":
-                                GarbageWindow.BroadcastMessage($"Client number: {clNo}\nJoin time: {joinTime.ToLongTimeString()}\nConnection time: {DateTime.Now.Subtract(joinTime)}");
+                                GarbageWindow.BroadcastMessage($"Client number: {_clNo}\nJoin time: {joinTime.ToLongTimeString()}\nConnection time: {DateTime.Now.Subtract(joinTime)}");
                                 break;
 
+                            case "clilist":
+                                
+                                foreach (var cli in GarbageWindow.Clients)
+                                {
+                                    GarbageWindow.BroadcastMessage($"Client #{_clNo}: {username} ");
+                                }
+                                break;
                             case "default":
 
                                 break;
@@ -238,7 +240,7 @@ namespace Server
                     }
                     else
                     {
-                        GarbageWindow.BroadcastMessage($"{clNo} - {username}: {dataFromClient}");
+                        GarbageWindow.BroadcastMessage($"{_clNo} - {username}: {dataFromClient}");
                     }
 
 
@@ -246,7 +248,7 @@ namespace Server
                 catch (Exception ex)
                 {
                     GarbageWindow.BroadcastMessage("Exception occurred with a client: " + ex.StackTrace);
-                    this.clientSocket.Close();
+                    _clientSocket.Close();
 
                     error++;
                 }

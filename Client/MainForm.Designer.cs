@@ -1,11 +1,14 @@
-﻿namespace WindowsFormsApp2
+﻿using System.ComponentModel;
+using System.Windows.Forms;
+
+namespace WindowsFormsApp2
 {
     partial class MainWindow
     {
         /// <summary>
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -131,13 +134,13 @@
         }
 
         #endregion
-        private System.Windows.Forms.NotifyIcon Notification;
-        private System.Windows.Forms.ListBox MessageLog;
-        private System.Windows.Forms.CheckBox DebugCheckbox;
-        private System.Windows.Forms.TextBox TextInputBox;
-        private System.Windows.Forms.ListBox DebugLog;
-        private System.Windows.Forms.Label Title;
-        private System.Windows.Forms.Button CloseButton;
+        private NotifyIcon Notification;
+        private ListBox MessageLog;
+        private CheckBox DebugCheckbox;
+        private TextBox TextInputBox;
+        private ListBox DebugLog;
+        private Label Title;
+        private Button CloseButton;
     }
 }
 

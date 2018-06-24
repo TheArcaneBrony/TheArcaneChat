@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
-using System.Runtime;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -12,7 +11,7 @@ namespace WindowsFormsApp2
     public partial class MainWindow : Form
     {
         public static string VersionString = "v1.0.0";
-        public System.Net.Sockets.TcpClient clientSocket = new System.Net.Sockets.TcpClient();
+        public TcpClient clientSocket = new TcpClient();
         NetworkStream serverStream;
         public MainWindow()
         {
@@ -23,7 +22,7 @@ namespace WindowsFormsApp2
         {
             if (TextInputBox.Text.Contains("\n") && TextInputBox.TextLength >= 1) {
 
-                byte[] outStream = System.Text.Encoding.Unicode.GetBytes(TextInputBox.Text.TrimEnd('\n'));
+                byte[] outStream = Encoding.Unicode.GetBytes(TextInputBox.Text.TrimEnd('\n'));
                 serverStream.Write(outStream, 0, outStream.Length);
 
                 TextInputBox.ResetText();
@@ -47,16 +46,16 @@ namespace WindowsFormsApp2
         }
         private void shutdown()
         {
-            Task shutdownTask = new Task(() =>
+            var shutdownTask = new Task(() =>
             {
                 Notification.Visible = false;
-                byte[] outStream = System.Text.Encoding.Unicode.GetBytes("\0CLIMSG\0exit");
+                var outStream = Encoding.Unicode.GetBytes("\0CLIMSG\0exit");
                 serverStream.Write(outStream, 0, outStream.Length);
                 serverStream.Close(1000);
             });
                 shutdownTask.Start();
             AllowTransparency = true;
-            for (float i = 1.0f; i > 0.0; i -= 0.00005f * 250/*0.00005f*/)
+            for (var i = 1.0f; i > 0.0; i -= 0.00005f * 250/*0.00005f*/)
             {
                 Opacity = i;
                 //Console.WriteLine(i + "");
@@ -71,7 +70,7 @@ namespace WindowsFormsApp2
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            FormConnecting formConnecting = new FormConnecting(this);
+            var formConnecting = new FormConnecting(this);
             formConnecting.Show();
             formConnecting.TopLevel = true;
             new Thread(()=> {
@@ -80,14 +79,14 @@ namespace WindowsFormsApp2
                 {
                     Thread.Sleep(100);
                     if (serverStream == null) continue;
-                    List<byte> inStream = new List<byte>();
-                    string returndata = "";
+                    var inStream = new List<byte>();
+                    var returndata = "";
                     while (!returndata.Contains("\0MSGEND\0"))
                     {
-                        byte[] inBytes = new byte[1];
+                        var inBytes = new byte[1];
                         serverStream.Read(inBytes, 0, 1);
                         inStream.AddRange(inBytes);
-                        returndata = System.Text.Encoding.Unicode.GetString(inStream.ToArray());
+                        returndata = Encoding.Unicode.GetString(inStream.ToArray());
                     }
                     returndata = returndata.Replace("\0MSGEND\0","");
                     Invoke(new MethodInvoker(() =>
@@ -102,9 +101,9 @@ namespace WindowsFormsApp2
                 }
             }).Start();
         }
-        public void init(string username)
+        public void Init(string username)
         {
-            System.Console.WriteLine("INIT");
+            Console.WriteLine("INIT");
             try
             {
 #if DEBUG
@@ -121,8 +120,8 @@ namespace WindowsFormsApp2
             }
 
 
-            this.serverStream = clientSocket.GetStream();
-            byte[] outStream = System.Text.Encoding.Unicode.GetBytes("/nick " + username);
+            serverStream = clientSocket.GetStream();
+            var outStream = Encoding.Unicode.GetBytes("/nick " + username);
             serverStream.Write(outStream, 0, outStream.Length);
 
         }
@@ -132,24 +131,21 @@ namespace WindowsFormsApp2
             base.OnMouseDown(e);
             if (e.Button == MouseButtons.Left)
             {
-                this.Capture = false;
-                Message msg = Message.Create(this.Handle, 0XA1, new IntPtr(2), IntPtr.Zero);
-                this.WndProc(ref msg);
+                Capture = false;
+                var msg = Message.Create(Handle, 0XA1, new IntPtr(2), IntPtr.Zero);
+                WndProc(ref msg);
             }
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
-            switch (DebugCheckbox.CheckState)
+            if (DebugCheckbox.CheckState == CheckState.Checked)
             {
-                case CheckState.Checked:
-                    MainWindow.ActiveForm.Width = 876;
-                    break;
-                case CheckState.Unchecked:
-                    MainWindow.ActiveForm.Width = 552;
-                    break;
-                default:
-                    break;
+                Width = 876;
+            }
+            else if (DebugCheckbox.CheckState == CheckState.Unchecked)
+            {
+                Width = 552;
             }
         }
 

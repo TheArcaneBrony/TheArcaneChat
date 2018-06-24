@@ -1,11 +1,14 @@
-﻿namespace WindowsFormsApp2
+﻿using System.ComponentModel;
+using System.Windows.Forms;
+
+namespace WindowsFormsApp2
 {
     partial class FormConnecting
     {
         /// <summary>
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -110,11 +113,11 @@
         }
 
         #endregion
-        private System.Windows.Forms.ListBox Log;
-        private System.Windows.Forms.PictureBox LoadingAnimation;
-        private System.Windows.Forms.Label UserNameText;
-        private System.Windows.Forms.Button LoginButton;
-        private System.Windows.Forms.TextBox Username;
+        private ListBox Log;
+        private PictureBox LoadingAnimation;
+        private Label UserNameText;
+        private Button LoginButton;
+        private TextBox Username;
     }
 }
 

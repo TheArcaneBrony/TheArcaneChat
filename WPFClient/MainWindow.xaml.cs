@@ -1,27 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+using System.ComponentModel;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using System.Runtime.Remoting.Channels;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
+using Microsoft.Win32;
 using Application = System.Windows.Forms.Application;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
@@ -35,7 +27,7 @@ namespace WPFClient
     {
         public string VersionString = "v1.0.0";
 
-        public System.Net.Sockets.TcpClient clientSocket = new System.Net.Sockets.TcpClient();
+        public TcpClient clientSocket = new TcpClient();
         NetworkStream serverStream;
 
         public MainWindow()
@@ -71,7 +63,7 @@ namespace WPFClient
             if(e.MouseDevice.DirectlyOver != CloseButton && e.LeftButton == MouseButtonState.Pressed) { DragMove(); }
         }
 
-        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
          shutdown();
         }
@@ -101,17 +93,17 @@ namespace WPFClient
             Titlebar.Visibility = Visibility.Visible;
 
             Storyboard.SetTarget(sb, Titlebar);
-            Storyboard.SetTargetProperty(sb, new PropertyPath(System.Windows.Controls.Control.OpacityProperty));
+            Storyboard.SetTargetProperty(sb, new PropertyPath(OpacityProperty));
 
 //            sb.Begin();
 
-            sb.Completed += delegate (object sender, EventArgs e)
+            sb.Completed += delegate
             {
                 Titlebar.Visibility = Visibility.Collapsed;
             };
             Task shutdownTask = new Task(() =>
             {
-                byte[] outStream = System.Text.Encoding.Unicode.GetBytes("\0CLIMSG\0exit");
+                byte[] outStream = Encoding.Unicode.GetBytes("\0CLIMSG\0exit");
                 serverStream.Write(outStream, 0, outStream.Length);
                 serverStream.Close(1000);
                 for (float i = 1.0f; i > 0.0; i -= 0.00005f * 250/*0.00005f*/)
@@ -150,7 +142,7 @@ namespace WPFClient
         {
             if (TxbInput.Text.Length >= 0)
             {
-                byte[] sendBytes = System.Text.Encoding.Unicode.GetBytes(TxbInput.Text);
+                byte[] sendBytes = Encoding.Unicode.GetBytes(TxbInput.Text);
                 TxbInput.Text = null;
                 serverStream.Write(sendBytes, 0, sendBytes.Length);
             }
@@ -177,7 +169,7 @@ namespace WPFClient
                             byte[] inBytes = new byte[1];
                             serverStream.Read(inBytes, 0, 1);
                             inStream.AddRange(inBytes);
-                            returndata = System.Text.Encoding.Unicode.GetString(inStream.ToArray());
+                            returndata = Encoding.Unicode.GetString(inStream.ToArray());
                         }
 
                         returndata = returndata.Replace("\0MSGEND\0", "");
@@ -192,7 +184,7 @@ namespace WPFClient
         }
         public async void init(string username)
         {
-            System.Console.WriteLine("INIT");
+            Console.WriteLine("INIT");
             try
             {
 #if DEBUG
@@ -209,7 +201,7 @@ namespace WPFClient
             }
 
             serverStream = clientSocket.GetStream();
-            byte[] outStream = System.Text.Encoding.Unicode.GetBytes("/nick " + username);
+            byte[] outStream = Encoding.Unicode.GetBytes("/nick " + username);
             await serverStream.WriteAsync(outStream, 0, outStream.Length);
 
             //shutdown();
@@ -234,9 +226,9 @@ namespace WPFClient
 
        // Microsoft.Win32.SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
 
-        private void SystemEvents_UserPreferenceChanged(object sender, Microsoft.Win32.UserPreferenceChangedEventArgs e)
+        private void SystemEvents_UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
         {
-            if (e.Category == Microsoft.Win32.UserPreferenceCategory.General)
+            if (e.Category == UserPreferenceCategory.General)
             {
                 // your code here, compare saved theme color with current one
             }
