@@ -101,7 +101,11 @@ namespace Server
                         {
 
                             var networkStream = cl.GetStream();
-                            networkStream.Write(sendBytes, 0, sendBytes.Length);
+                            using (Encoding.Unicode.GetBytes(Message.Replace("\n", "\0MSGEND\0") + "\0MSGEND\0") as byte[] sendbytes)}
+                            {
+                                networkStream.Write(sendBytes, 0, sendBytes.Length);
+                            }
+
                         }
                         catch
                         {
@@ -158,7 +162,6 @@ namespace Server
     public class HandleClient
     {
         TcpClient _clientSocket;
-        string _clNo;
         public void StartClient(TcpClient inClientSocket, string cliNo)
         {
             _clientSocket = inClientSocket;
@@ -224,7 +227,6 @@ namespace Server
                                 break;
 
                             case "clilist":
-                                
                                 foreach (var cli in GarbageWindow.Clients)
                                 {
                                     GarbageWindow.BroadcastMessage($"Client #{_clNo}: {username} ");
@@ -255,6 +257,14 @@ namespace Server
             }
 
         }
+
+
+    }
+
+    public class Client
+    {
+        public Client() { }
+        public int ClientNumber { get; get; }
 
 
     }
