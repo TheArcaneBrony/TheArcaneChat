@@ -39,7 +39,6 @@
             </Rectangle>
             <Label x:Name="WindowTitle" Content="TheArcaneChat -=- LOADING. PLEASE WAIT..." HorizontalAlignment="Left" VerticalAlignment="Top"/>
         </Grid>
-        <WebBrowser HorizontalAlignment="Left" Height="244" VerticalAlignment="Top" Width="460" Source="https://www.youtube.com/embed/kv1aBtVPgPo?autoplay=true" Margin="57,75,0,0"  />
     </Grid>
 
 </Window>
