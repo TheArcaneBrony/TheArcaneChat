@@ -18,3 +18,12 @@ C:\Users\The Arcane Brony\source\repos\ChatPlatform\Server\obj\Debug\Server.exe
 C:\Users\The Arcane Brony\source\repos\ChatPlatform\Server\obj\Debug\Server.pdb
 C:\Users\The Arcane Brony\source\repos\ChatPlatform\Server\obj\Debug\Server.csprojAssemblyReference.cache
 C:\Users\The Arcane Brony\source\repos\ChatPlatform\Server\obj\Debug\Server.GarbageWindow.resources
+F:\thearcanechat\Server\obj\Debug\Server.GarbageWindow.resources
+F:\thearcanechat\Server\obj\Debug\Server.Properties.Resources.resources
+F:\thearcanechat\Server\obj\Debug\Server.csproj.GenerateResource.cache
+F:\thearcanechat\Server\obj\Debug\Server.csproj.CoreCompileInputs.cache
+F:\thearcanechat\Server\bin\Debug\Server.exe.config
+F:\thearcanechat\Server\bin\Debug\Server.exe
+F:\thearcanechat\Server\bin\Debug\Server.pdb
+F:\thearcanechat\Server\obj\Debug\Server.exe
+F:\thearcanechat\Server\obj\Debug\Server.pdb

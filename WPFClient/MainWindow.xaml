@@ -14,9 +14,8 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <ListBox x:Name="LbChat" Margin="0,0,0,18"/>
-            <TextBox x:Name="TxbInput" Margin="0,0,30,0" TextWrapping="Wrap" SpellCheck.IsEnabled="True" VerticalAlignment="Bottom" KeyDown="TxbInput_KeyDown"/>
-            <Button x:Name="BtnSend" Content="Send" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="20" MinWidth="30" MouseLeftButtonDown="BtnSend_MouseLeftButtonDown" Height="18"/>
+            <ListBox x:Name="LbChat" Margin="0,0,0,22"/>
+            <TextBox x:Name="TxbInput" TextWrapping="Wrap" SpellCheck.IsEnabled="True" VerticalAlignment="Bottom" KeyDown="TxbInput_KeyDown"/>
         </Grid>
         <Grid HorizontalAlignment="Right" MinWidth="100" Margin="0,30,0,0">
             <ListBox x:Name="ListBoxOnline"/>
@@ -28,9 +27,8 @@
                     <ImageBrush ImageSource="Resources/CloseButton.png" Stretch="UniformToFill"/>
                 </Rectangle.Fill>
             </Rectangle>
-            <Label x:Name="WindowTitle" Content="Label" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label x:Name="WindowTitle" Content="TheArcaneChat -=- LOADING. PLEASE WAIT..." HorizontalAlignment="Left" VerticalAlignment="Top"/>
         </Grid>
-        <Slider x:Name="slider" Margin="83,137,258,200"/>
     </Grid>
 
 </Window>

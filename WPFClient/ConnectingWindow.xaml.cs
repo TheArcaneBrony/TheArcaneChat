@@ -45,8 +45,8 @@ namespace WPFClient
         }
         private void Login()
         {
-            mainWindow.init(Username.Text);
-            Log.Items.Add(mainWindow.clientSocket.Connected ? "Connection successful!" : "Connection failed, please check your internet connection!");
+            mainWindow.Init(Username.Text);
+            Log.Items.Add(mainWindow.ClientSocket.Connected ? "Connection successful!" : "Connection failed, please check your internet connection!");
             Log.Items.Add($"Username: {Username.Text}");
             UpdateLayout();
             mainWindow.Visibility = Visibility.Visible;

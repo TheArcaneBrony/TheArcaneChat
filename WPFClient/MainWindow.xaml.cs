@@ -2,42 +2,37 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Net.Sockets;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Interop;
-using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Threading;
-using Microsoft.Win32;
 using Application = System.Windows.Forms.Application;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
-using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 
 namespace WPFClient
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public string VersionString = "v1.0.0";
 
-        public TcpClient clientSocket = new TcpClient();
-        NetworkStream serverStream;
+        public TcpClient ClientSocket = new TcpClient();
+        NetworkStream _serverStream;
 
         public MainWindow()
         {
             InitializeComponent();
 
             Show();
-            init("Luxuride");
-            ConnectingWindow cw = new ConnectingWindow(this);
-            //cw.Show();
+
+            var cw = new ConnectingWindow(this);
+#if DEBUG
+            Init("Luxuride");
+#else
+            cw.Show();
+#endif
             Activated += (sender, args) =>
             {
                 if (cw.IsVisible) cw.Activate();
@@ -48,14 +43,9 @@ namespace WPFClient
 
             CloseButton.MouseUp += (sender, args) =>
             {
-                if (CloseButton.Tag == "hit") shutdown();
+                if (CloseButton.Tag == "hit") Shutdown();
             };
             Titlebar.MouseDown += TitlebarOnMouseDown;
-            slider.ValueChanged += (sender, args) =>
-            {
-                Opacity = args.NewValue;
-                setTitle(""+args.NewValue);
-            };
         }
 
         private void TitlebarOnMouseDown(object sender, MouseButtonEventArgs e)
@@ -65,92 +55,29 @@ namespace WPFClient
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
-         shutdown();
+            Shutdown();
         }
 
-        public void shutdown()
-        {/*
-            var animation = new DoubleAnimation
-            {
-                To = 0,
-                Duration = TimeSpan.FromSeconds(2),
-                FillBehavior = FillBehavior.Stop,
-            };
-
-            animation.Completed += (s, a) => Opacity = 0;
-
-            Titlebar.BeginAnimation(OpacityProperty, animation);*/
-            DoubleAnimation animation = new DoubleAnimation();
-            animation.To = 0;
-            //animation.From = 1;
-            animation.Duration = TimeSpan.FromMilliseconds(3000);
-            animation.EasingFunction = new QuadraticEase();
-
-            Storyboard sb = new Storyboard();
-            sb.Children.Add(animation);
-
-            Titlebar.Opacity = 1;
-            Titlebar.Visibility = Visibility.Visible;
-
-            Storyboard.SetTarget(sb, Titlebar);
-            Storyboard.SetTargetProperty(sb, new PropertyPath(OpacityProperty));
-
-//            sb.Begin();
-
-            sb.Completed += delegate
-            {
-                Titlebar.Visibility = Visibility.Collapsed;
-            };
-            Task shutdownTask = new Task(() =>
-            {
-                byte[] outStream = Encoding.Unicode.GetBytes("\0CLIMSG\0exit");
-                serverStream.Write(outStream, 0, outStream.Length);
-                serverStream.Close(1000);
-                for (float i = 1.0f; i > 0.0; i -= 0.00005f * 250/*0.00005f*/)
-                {
-                Dispatcher.Invoke(() => { Opacity = i; });
-                    Action emptyDelegate = delegate { };
-                    Dispatcher.Invoke(emptyDelegate, DispatcherPriority.Render);
-                    Thread.Sleep(1000 / 12);
-
-                }
-            });
-            shutdownTask.Start();
-            shutdownTask.Wait(1500);
-
-            //Thread.Sleep(3000);
+        public void Shutdown()
+        {
+            var outStream = Encoding.Unicode.GetBytes("\0CLIMSG\0exit");
+            _serverStream.Write(outStream, 0, outStream.Length);
+            _serverStream.Close(2000);
             Application.Exit();
             Environment.Exit(0);
         }
-        public static Color ToColor(uint argb)
-        {
-            return Color.FromArgb((byte)((argb & -16777216) >> 0x18),
-                (byte)((argb & 0xff0000) >> 0x10),
-                (byte)((argb & 0xff00) >> 8),
-                (byte)(argb & 0xff));
-        }
-        private async void TxbInput_KeyDown(object sender, KeyEventArgs e)
+        private void TxbInput_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
-                await Send();
+                Send();
         }
-        private async void BtnSend_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            await Send();
-        }
-        private async Task Send()
-        {
-            if (TxbInput.Text.Length >= 0)
-            {
-                byte[] sendBytes = Encoding.Unicode.GetBytes(TxbInput.Text);
-                TxbInput.Text = null;
-                serverStream.Write(sendBytes, 0, sendBytes.Length);
-            }
-        }
-        protected void OnMouseDown(MouseEventArgs e)
 
+        private void Send()
         {
-
+            if (TxbInput.Text.Length < 0) return;
+            var sendBytes = Encoding.Unicode.GetBytes(TxbInput.Text);
+            TxbInput.Text = "";
+            _serverStream.Write(sendBytes, 0, sendBytes.Length);
         }
 
         private void Connection()
@@ -161,13 +88,13 @@ namespace WPFClient
                     try
                     {
                         Thread.Sleep(100);
-                        if (serverStream == null) continue;
-                        List<byte> inStream = new List<byte>();
-                        string returndata = "";
+                        if (_serverStream == null) continue;
+                        var inStream = new List<byte>();
+                        var returndata = "";
                         while (!returndata.Contains("\0MSGEND\0"))
                         {
-                            byte[] inBytes = new byte[1];
-                            serverStream.Read(inBytes, 0, 1);
+                            var inBytes = new byte[1];
+                            _serverStream.Read(inBytes, 0, 1);
                             inStream.AddRange(inBytes);
                             returndata = Encoding.Unicode.GetString(inStream.ToArray());
                         }
@@ -182,105 +109,31 @@ namespace WPFClient
                     }
             }).Start();
         }
-        public async void init(string username)
+        public void Init(string username)
         {
-            Console.WriteLine("INIT");
             try
             {
 #if DEBUG
-                clientSocket.Connect("127.0.0.1", 8888);
+                ClientSocket.Connect("127.0.0.1", 8888);
 #else
-            clientSocket.Connect("TheArcaneBrony.ddns.net", 8888);
+                clientSocket.Connect("thearcanebrony.ddns.net", 8888);
 #endif
-                setTitle($"Connected as {username}");
+                SetTitle($"Connected as {username}");
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                setTitle("Connection failed!");
+                SetTitle("Connection failed!");
             }
 
-            serverStream = clientSocket.GetStream();
-            byte[] outStream = Encoding.Unicode.GetBytes("/nick " + username);
-            await serverStream.WriteAsync(outStream, 0, outStream.Length);
-
-            //shutdown();
+            _serverStream = ClientSocket.GetStream();
+            var outStream = Encoding.Unicode.GetBytes($"/nick {username}");
+            _serverStream.Write(outStream, 0, outStream.Length);
         }
-        public void setTitle(string title)
+        public void SetTitle(string title)
         {
             Title = $"TheArcaneChat [WPF] -=- Version {VersionString} -=- {title}";
             WindowTitle.Content = Title;
-            if (false /*hasConsole*/)
-            {
-                Console.Title = "Debug Output | " + title;
-            }
-            Console.WriteLine("Set the window title to: " + title);
         }
-
-        // Microsoft.Win32.UserPreferenceCategory
-
-
-
-        //WIN API CODE
-
-
-       // Microsoft.Win32.SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
-
-        private void SystemEvents_UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
-        {
-            if (e.Category == UserPreferenceCategory.General)
-            {
-                // your code here, compare saved theme color with current one
-            }
-        }
-
-        private const int WM_DWMCOMPOSITIONCHANGED = 0x31E;
-        private const int WM_THEMECHANGED = 0x031A;
-        private IntPtr hwnd;
-        private HwndSource hsource;
-
-        private void Window_SourceInitialized(object sender, EventArgs e)
-        {
-            if ((hwnd = new WindowInteropHelper(this).Handle) == IntPtr.Zero)
-            {
-                throw new InvalidOperationException("Could not get window handle.");
-            }
-
-            hsource = HwndSource.FromHwnd(hwnd);
-            hsource.AddHook(WndProc);
-        }
-
-        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
-        {
-            switch (msg)
-            {
-                case WM_DWMCOMPOSITIONCHANGED: // Define this as 0x31A
-                case WM_THEMECHANGED:          // Define this as 0x31E
-
-                    // Respond to DWM being enabled/disabled or system theme being changed
-
-
-                    return IntPtr.Zero;
-
-                default:
-                    return IntPtr.Zero;
-            }
-        }
-    }
-    internal static class NativeMethods
-    {
-        [DllImport("dwmapi.dll", EntryPoint = "#127")]
-        internal static extern void DwmGetColorizationParameters(ref DWMCOLORIZATIONPARAMS fuck);
-    }
-
-    public struct DWMCOLORIZATIONPARAMS
-    {
-        public uint ColorizationColor,
-            ColorizationAfterglow,
-            ColorizationColorBalance,
-            ColorizationAfterglowBalance,
-            ColorizationBlurBalance,
-            ColorizationGlassReflectionIntensity,
-            ColorizationOpaqueBlend;
     }
 }
