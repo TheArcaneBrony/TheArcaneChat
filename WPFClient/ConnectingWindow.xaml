@@ -6,12 +6,11 @@
         xmlns:local="clr-namespace:WPFClient"
         mc:Ignorable="d"
         Title="ConnectingWindow" Height="127" Width="323" WindowStyle="None" AllowsTransparency="True">
-    <Grid Background="#FFF0F0F0">
-        <Image HorizontalAlignment="Left" Height="82" Margin="8,8,0,0" VerticalAlignment="Top" Width="80" Source="Resources/Loading.png" ScrollViewer.VerticalScrollBarVisibility="Disabled" UseLayoutRounding="False" SnapsToDevicePixels="True" RenderOptions.BitmapScalingMode="Fant" Stretch="UniformToFill"/>
-        <ListBox x:Name="Log" HorizontalAlignment="Left" Height="82" Margin="94,8,0,0" VerticalAlignment="Top" Width="221" SelectionChanged="ListBox_SelectionChanged"/>
-        <TextBox x:Name="Username" Height="20" Margin="71,101,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="181" HorizontalAlignment="Left" KeyDown="Username_KeyDown"/>
+    <Grid>
+        <Image HorizontalAlignment="Left" Height="82" Margin="8,8,0,0" VerticalAlignment="Top" Width="80" Source="Resources/Loading.png" RenderOptions.BitmapScalingMode="HighQuality" Stretch="UniformToFill"/>
+        <ListBox x:Name="Log" HorizontalAlignment="Left" Height="82" Margin="94,8,0,0" VerticalAlignment="Top" Width="221"/>
+        <TextBox x:Name="Username" Height="20" Margin="71,101,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="242" HorizontalAlignment="Left" KeyDown="Username_KeyDown" Text="Press enter to confirm" UndoLimit="0"/>
         <Label x:Name="UsernameLabel" Content="Username:" Width="58" Height="13" VerticalAlignment="Top" Padding="0" HorizontalAlignment="Left" Margin="8,102,0,0"/>
-        <Button x:Name="LoginButton" Content="Log in" HorizontalAlignment="Left" Margin="259,100,0,0" VerticalAlignment="Top" Width="56" Height="20" Click="LoginButton_Click"/>
 
     </Grid>
 </Window>

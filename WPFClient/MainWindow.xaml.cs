@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Media;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -28,7 +29,7 @@ namespace WPFClient
             Show();
 
             var cw = new ConnectingWindow(this);
-#if DEBUG
+#if !DEBUG
             Init("Luxuride");
 #else
             cw.Show();
@@ -39,18 +40,39 @@ namespace WPFClient
             };
             Connection();
             Closing += MainWindow_Closing;
-            MouseDown += (sender, args) => { CloseButton.Tag = (args.OriginalSource == CloseButton) ? "hit" : ""; };
+            MouseDown += (sender, args) =>
+            {
+                CloseButton.Tag = (args.OriginalSource == CloseButton) ? "hit" : "";
+                WindowStateButton.Tag = (args.OriginalSource == WindowStateButton) ? "hit" : "";
+                MinimiseButton.Tag = (args.OriginalSource == MinimiseButton) ? "hit" : "";
+
+            };
 
             CloseButton.MouseUp += (sender, args) =>
             {
                 if (CloseButton.Tag == "hit") Shutdown();
             };
+
+            WindowStateButton.MouseUp += (sender, args) =>
+            {
+                if (WindowStateButton.Tag == "hit")
+                    if (WindowState == WindowState.Normal)
+                        WindowState = WindowState.Maximized;
+                    else
+                        WindowState = WindowState.Normal;
+            };
+
+            MinimiseButton.MouseUp += (sender, args) =>
+            {
+                if (MinimiseButton.Tag == "hit") Main.WindowState = WindowState.Minimized;
+            };
+
             Titlebar.MouseDown += TitlebarOnMouseDown;
         }
 
         private void TitlebarOnMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if(e.MouseDevice.DirectlyOver != CloseButton && e.LeftButton == MouseButtonState.Pressed) { DragMove(); }
+            if(e.MouseDevice.DirectlyOver != CloseButton && e.MouseDevice.DirectlyOver != WindowStateButton && e.MouseDevice.DirectlyOver != MinimiseButton && e.LeftButton == MouseButtonState.Pressed) { DragMove(); }
         }
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
@@ -62,7 +84,7 @@ namespace WPFClient
         {
             var outStream = Encoding.Unicode.GetBytes("\0CLIMSG\0exit");
             _serverStream.Write(outStream, 0, outStream.Length);
-            _serverStream.Close(2000);
+            _serverStream.Close(1000);
             Application.Exit();
             Environment.Exit(0);
         }
@@ -101,6 +123,10 @@ namespace WPFClient
 
                         returndata = returndata.Replace("\0MSGEND\0", "");
                         Dispatcher.Invoke(new MethodInvoker(() => { LbChat.Items.Add(returndata); }));
+                        new Task(() =>
+                        {
+                            new SoundPlayer(@"C:\Windows\Media\Windows Default.wav").Play();
+                        }).Start();
                         Console.WriteLine(returndata);
                     }
                     catch (Exception ex)

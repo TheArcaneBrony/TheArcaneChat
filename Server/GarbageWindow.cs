@@ -176,7 +176,7 @@ namespace Server
                     networkStream.Read(bytesFrom, 0, bytesFrom.Length);
                     var utf8string = Encoding.UTF8.GetString(bytesFrom).TrimEnd('\0');
 
-                    Console.WriteLine(utf8string);
+                   // Console.WriteLine(utf8string);
                     if (utf8string.Contains("GET") && utf8string.Contains("HTTP/1.1"))
                     {
                         var sendBytes = Encoding.UTF8.GetBytes("ARCANECHAT_SERVER.HTTP_BOT_FOUND_EXCEPTION: Nice attempt to connect to this server using a web browser, real clever...\nDid you really thing I am **THAT** stupid?");
@@ -196,7 +196,7 @@ namespace Server
                         break;
                     }
                     string dataFromClient = Encoding.Unicode.GetString(bytesFrom).TrimEnd('\0');
-                    Console.WriteLine($" >> From client #{_clNo}: \"{dataFromClient}\"");
+                    Console.WriteLine($"#{_clNo}: \"{dataFromClient}\"");
                     if (dataFromClient.StartsWith("\0CLIMSG\0"))
                     {
                         switch (dataFromClient.Replace("\0CLIMSG\0", ""))
@@ -214,7 +214,7 @@ namespace Server
                         switch ((dataFromClient.Remove(0, 1) + " ").Split(' ')[0].ToLower().Trim())
                         {
                             case "cli":
-                                GarbageWindow.BroadcastMessage("*working*\n");
+                                GarbageWindow.BroadcastMessage("*working*");
                                 GarbageWindow.BroadcastMessage($"SERVER BROADCAST: --CLIENTS CONNECTED: {GarbageWindow.Clients.Count}--");
                                 break;
                             case "nick":

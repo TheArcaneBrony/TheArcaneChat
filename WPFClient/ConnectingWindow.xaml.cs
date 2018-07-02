@@ -14,29 +14,10 @@ namespace WPFClient
         public ConnectingWindow(MainWindow parent)
         {
             InitializeComponent();
-            //this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-
-
             mainWindow = parent;
             Left = parent.Left + parent.Width / 2 - Width / 2;
             Top = parent.Top + parent.Height/ 2 - Height / 2;
-            Loaded += ConnectingWindow_Loaded;
-
-        }
-
-        private void ConnectingWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-        }
-
-        private void LoginButton_Click(object sender, RoutedEventArgs e)
-        {
-            Login();
+            Log.Items.Add(new WebBrowser());
         }
         private void Username_KeyDown(object sender, KeyEventArgs e)
         {
@@ -46,13 +27,21 @@ namespace WPFClient
         private void Login()
         {
             mainWindow.Init(Username.Text);
-            Log.Items.Add(mainWindow.ClientSocket.Connected ? "Connection successful!" : "Connection failed, please check your internet connection!");
+            Log.Items.Add(mainWindow.ClientSocket.Connected ? "Connection successful!" : "Connection failed!");
             Log.Items.Add($"Username: {Username.Text}");
             UpdateLayout();
             mainWindow.Visibility = Visibility.Visible;
-            Thread.Yield();
-            Thread.Sleep(1000);
+            this.Log.Items.Clear();
+            this.Username.Text = null;
+            this.UsernameLabel.Content = null;
+            Thread.Sleep(200);
+            this.Username.Visibility = Visibility.Hidden;
+            this.Log.Visibility = Visibility.Hidden;
+            this.UsernameLabel.Visibility = Visibility.Hidden;
+            Thread.Sleep(500);
+
             Close();
+
         }
     }
 }
