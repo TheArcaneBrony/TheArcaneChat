@@ -43,10 +43,10 @@ namespace Server
                 {
                     try
                     {
-                        while (!ServerSocket.Pending()) Thread.Sleep(10);
+                        while (!ServerSocket.Pending()) Thread.Sleep(5);
 
                         ClientSocket = ServerSocket.AcceptTcpClient();
-                        Console.WriteLine($" >> Client No: {_counter++} started!");
+                        //Console.WriteLine($" >> Client No: {_counter++} started!");
                         Clients.Add(ClientSocket);
                         new HandleClient().StartClient(ClientSocket, Convert.ToString(_counter));
                         new Task(() =>
@@ -97,13 +97,12 @@ namespace Server
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e);
+                      //  Console.WriteLine(e);
                     }
-                    if (Clients.Count <= oldNumcli) Console.WriteLine($"{oldNumcli - Clients.Count} client(s) have logged off! (MessageTransmitFailedException!)");
+                    if (Clients.Count < oldNumcli) Console.WriteLine($"{oldNumcli - Clients.Count} client(s) have disconnected! Remaining: {Clients.Count}");
                 });
                 msgSend.Start();
-                Console.WriteLine("a >> " + message);
-                Console.WriteLine("um?");
+                //Console.WriteLine(" >> " + message);
 
             }
             catch
@@ -129,7 +128,7 @@ namespace Server
                 {
                     Clients.Remove(Client);
                     Console.WriteLine("WTF? Whisper failed!");
-                    BroadcastMessage("A client has logged off! (MessageTransmitFailedException!)");
+                    //BroadcastMessage("A client has logged off! (MessageTransmitFailedException!)");
                 }
 
                 Console.WriteLine(" >> " + Message);
@@ -229,7 +228,8 @@ namespace Server
                                 break;
 
                             case "clilist":
-                                foreach (var cli in GarbageWindow.Clients)
+                                var clis = GarbageWindow.Clients;
+                                foreach (var cli in clis)
                                 {
                                     GarbageWindow.BroadcastMessage($"Client #{_clNo}: {username} ");
                                 }

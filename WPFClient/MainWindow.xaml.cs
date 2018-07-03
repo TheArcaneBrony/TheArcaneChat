@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Media;
 using System.Net.Sockets;
 using System.Text;
@@ -21,6 +22,7 @@ namespace WPFClient
 
         public TcpClient ClientSocket = new TcpClient();
         NetworkStream _serverStream;
+        public string Username = "DebugUser";
 
         public MainWindow()
         {
@@ -29,8 +31,11 @@ namespace WPFClient
             Show();
 
             var cw = new ConnectingWindow(this);
-#if !DEBUG
-            Init("Luxuride");
+#if DEBUG
+            if(File.Exists(@"C:\TheArcaneBrony.txt"))
+            Init("TheArcaneBrony");
+            else
+            Init(Username);
 #else
             cw.Show();
 #endif
@@ -91,15 +96,24 @@ namespace WPFClient
         private void TxbInput_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
-                Send();
+                if (TxbInput.Text.Length < 0) return;
+                else Send(TxbInput.Text);
+
         }
 
-        private void Send()
+        private void Send(string text)
         {
-            if (TxbInput.Text.Length < 0) return;
-            var sendBytes = Encoding.Unicode.GetBytes(TxbInput.Text);
-            TxbInput.Text = "";
-            _serverStream.Write(sendBytes, 0, sendBytes.Length);
+            try
+            {
+                var sendBytes = Encoding.Unicode.GetBytes(TxbInput.Text);
+                TxbInput.Text = "";
+                _serverStream.Write(sendBytes, 0, sendBytes.Length);
+            }
+            catch (Exception e)
+            {
+                LbChat.Items.Add("Connection failure, reconnecting~!");
+                Init(Username);
+            }
         }
 
         private void Connection()
@@ -109,7 +123,7 @@ namespace WPFClient
                 while (true)
                     try
                     {
-                        Thread.Sleep(100);
+                        Thread.Sleep(10);
                         if (_serverStream == null) continue;
                         var inStream = new List<byte>();
                         var returndata = "";
