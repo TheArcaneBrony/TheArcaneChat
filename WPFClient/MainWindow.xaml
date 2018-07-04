@@ -10,16 +10,6 @@
         <SolidColorBrush Color="Black"/>
     </Window.OpacityMask>
     <Grid>
-        <Grid Margin="0,30,100,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <ListBox x:Name="LbChat" Margin="0,0,0,22"/>
-            <TextBox x:Name="TxbInput" TextWrapping="Wrap" SpellCheck.IsEnabled="True" VerticalAlignment="Bottom" KeyDown="TxbInput_KeyDown"/>
-        </Grid>
-        <Grid HorizontalAlignment="Right" MinWidth="100" Margin="0,30,0,0">
-            <ListBox x:Name="ListBoxOnline"/>
-        </Grid>
         <Grid x:Name="Titlebar" Height="30" VerticalAlignment="Top" Margin="0">
             <Rectangle x:Name="TitleBar" Fill="#FF005DFF"/>
             <Rectangle x:Name="CloseButton" Margin="0" Height="30" Width="30" HorizontalAlignment="Right" VerticalAlignment="Top" Stroke="Black">
@@ -38,6 +28,16 @@
                 </Rectangle.Fill>
             </Rectangle>
             <Label x:Name="WindowTitle" Content="TheArcaneChat -=- LOADING. PLEASE WAIT..." HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        </Grid>
+        <Grid Margin="0,30,100,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <ListBox x:Name="LbChat" Margin="0,0,0,22"/>
+            <TextBox x:Name="TxbInput" TextWrapping="Wrap" SpellCheck.IsEnabled="True" VerticalAlignment="Bottom" KeyDown="TxbInput_KeyDown"/>
+        </Grid>
+        <Grid HorizontalAlignment="Right" MinWidth="100" Margin="0,30,0,0">
+            <ListBox x:Name="ListBoxOnline"/>
         </Grid>
     </Grid>
 

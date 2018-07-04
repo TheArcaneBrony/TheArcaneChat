@@ -121,9 +121,10 @@ namespace WPFClient
             new Thread(() =>
             {
                 while (true)
+                {
+                    Thread.Sleep(10);
                     try
                     {
-                        Thread.Sleep(10);
                         if (_serverStream == null) continue;
                         var inStream = new List<byte>();
                         var returndata = "";
@@ -147,6 +148,9 @@ namespace WPFClient
                     {
                         Console.WriteLine(ex);
                     }
+                }
+
+
             }).Start();
         }
         public void Init(string username)
@@ -154,9 +158,16 @@ namespace WPFClient
             try
             {
 #if DEBUG
-                ClientSocket.Connect("127.0.0.1", 8888);
+                try
+                {
+                    ClientSocket.Connect("127.0.0.1", 8888);
+                }
+                catch
+                {
+                    ClientSocket.Connect("thearcanebrony.ddns.net", 8888);
+                }
 #else
-                clientSocket.Connect("thearcanebrony.ddns.net", 8888);
+                ClientSocket.Connect("thearcanebrony.ddns.net", 8888);
 #endif
                 SetTitle($"Connected as {username}");
             }
@@ -167,7 +178,7 @@ namespace WPFClient
             }
 
             _serverStream = ClientSocket.GetStream();
-            var outStream = Encoding.Unicode.GetBytes($"/nick {username}");
+            var outStream = Encoding.Unicode.GetBytes($"\0cmd\0logon {username}");
             _serverStream.Write(outStream, 0, outStream.Length);
         }
         public void SetTitle(string title)

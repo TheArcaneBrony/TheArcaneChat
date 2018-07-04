@@ -31,14 +31,12 @@ namespace WPFClient
             Log.Items.Add($"Username: {Username.Text}");
             UpdateLayout();
             mainWindow.Visibility = Visibility.Visible;
-            this.Log.Items.Clear();
-            this.Username.Text = null;
-            this.UsernameLabel.Content = null;
-            Thread.Sleep(200);
-            this.Username.Visibility = Visibility.Hidden;
-            this.Log.Visibility = Visibility.Hidden;
-            this.UsernameLabel.Visibility = Visibility.Hidden;
-            Thread.Sleep(500);
+            Log.Items.Clear();
+            Username.Text = null;
+            UsernameLabel.Content = null;
+            Username.Visibility = Visibility.Hidden;
+            Log.Visibility = Visibility.Hidden;
+            UsernameLabel.Visibility = Visibility.Hidden;
 
             Close();
 

@@ -48,7 +48,8 @@ namespace Server
                         ClientSocket = ServerSocket.AcceptTcpClient();
                         //Console.WriteLine($" >> Client No: {_counter++} started!");
                         Clients.Add(ClientSocket);
-                        new HandleClient().StartClient(ClientSocket, Convert.ToString(_counter));
+                        new HandleClient().StartClient(ClientSocket, _counter);
+                        _counter++;
                         new Task(() =>
                         {
                             new SoundPlayer(@"C:\Windows\Media\Speech On.wav").Play();
@@ -148,8 +149,8 @@ namespace Server
     public class HandleClient
     {
         TcpClient _clientSocket;
-        string _clNo;
-        public void StartClient(TcpClient inClientSocket, string cliNo)
+        int _clNo;
+        public void StartClient(TcpClient inClientSocket, int cliNo)
         {
             _clientSocket = inClientSocket;
             _clNo = cliNo;
@@ -162,7 +163,6 @@ namespace Server
             var requestCount = 0;
             var error = 0;
             var username = $"User_{new Random().Next(0, 1000)}";
-            GarbageWindow.BroadcastMessage($"Welcome client #{_clNo}");
             Console.WriteLine($"Client #{_clNo} connected, IP: {_clientSocket.Client.RemoteEndPoint}");
             while (error < 1)
             {
@@ -204,6 +204,20 @@ namespace Server
                                 GarbageWindow.Clients.Remove(_clientSocket);
                                 _clientSocket.Close();
                                 GarbageWindow.BroadcastMessage($"Client { _clNo } logged off!");
+                                break;
+                        }
+
+                    }
+                    else if (dataFromClient.StartsWith("\0cmd\0"))
+                    {
+                        switch (dataFromClient.Replace("\0cmd\0", "").Split(' ')[0].ToLower().Trim())
+                        {
+                            case "nick":
+                                username = dataFromClient.Replace("\0cmd\0nick","");
+                                break;
+                            case "logon":
+                                username = dataFromClient.Replace("\0cmd\0logon", "");
+                                GarbageWindow.BroadcastMessage($"Welcome {username} (#{_clNo} since server launch, {GarbageWindow.Clients.Count} currently logged in)");
                                 break;
                         }
 
