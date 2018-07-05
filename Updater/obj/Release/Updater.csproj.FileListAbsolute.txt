@@ -1,0 +1,8 @@
+F:\thearcanechat\Updater\obj\Release\Updater.Properties.Resources.resources
+F:\thearcanechat\Updater\obj\Release\Updater.csproj.GenerateResource.cache
+F:\thearcanechat\Updater\obj\Release\Updater.csproj.CoreCompileInputs.cache
+F:\thearcanechat\Updater\obj\Release\Updater.Form1.resources
+F:\thearcanechat\Updater\bin\Release\ArcaneChatUpd.exe.config
+F:\thearcanechat\Updater\bin\Release\ArcaneChatUpd.exe
+F:\thearcanechat\Updater\obj\Release\ArcaneChatUpd.exe
+F:\thearcanechat\Updater\obj\Release\Updater.csprojAssemblyReference.cache

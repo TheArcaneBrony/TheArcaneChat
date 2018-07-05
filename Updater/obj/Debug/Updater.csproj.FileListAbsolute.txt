@@ -1,0 +1,10 @@
+F:\thearcanechat\Updater\obj\Debug\Updater.csprojAssemblyReference.cache
+F:\thearcanechat\Updater\obj\Debug\WindowsFormsApp2.Form1.resources
+F:\thearcanechat\Updater\obj\Debug\Updater.Properties.Resources.resources
+F:\thearcanechat\Updater\obj\Debug\Updater.csproj.GenerateResource.cache
+F:\thearcanechat\Updater\bin\Debug\ArcaneChat_Updater.exe.config
+F:\thearcanechat\Updater\bin\Debug\ArcaneChat_Updater.exe
+F:\thearcanechat\Updater\bin\Debug\ArcaneChat_Updater.pdb
+F:\thearcanechat\Updater\obj\Debug\Updater.csproj.CoreCompileInputs.cache
+F:\thearcanechat\Updater\obj\Debug\ArcaneChat_Updater.exe
+F:\thearcanechat\Updater\obj\Debug\ArcaneChat_Updater.pdb

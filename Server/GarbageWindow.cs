@@ -43,6 +43,7 @@ namespace Server
                 {
                     try
                     {
+
                         while (!ServerSocket.Pending()) Thread.Sleep(5);
 
                         ClientSocket = ServerSocket.AcceptTcpClient();
@@ -72,13 +73,33 @@ namespace Server
         {
             try
             {
-                var msgSend = new Task(() =>
-                {
-                    var sendBytes = Encoding.Unicode.GetBytes(message.Replace("\n", "\0MSGEND\0") + "\0MSGEND\0");
+               /* var msgSend = new Task(() =>
+                {*/
+                    var sendBytes = Encoding.Unicode.GetBytes("\0SRVMSG\0ping".Replace("\n", "\0MSGEND\0") + "\0MSGEND\0");
                     var tmpCli = Clients;
 
                     var oldNumcli = Clients.Count;
                     Console.Title = tmpCli.Count + "";
+                    try
+                    {
+                        foreach (var client in tmpCli)
+                        {
+                            try
+                            {
+
+                                var networkStream = client.GetStream();
+                                networkStream.Write(sendBytes, 0, sendBytes.Length);
+                            }
+                            catch
+                            {
+                                Clients.Remove(client);
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                    }
+                    sendBytes = Encoding.Unicode.GetBytes(message.Replace("\n", "\0MSGEND\0") + "\0MSGEND\0");
                     try
                     {
                         foreach (var client in tmpCli)
@@ -101,8 +122,8 @@ namespace Server
                       //  Console.WriteLine(e);
                     }
                     if (Clients.Count < oldNumcli) Console.WriteLine($"{oldNumcli - Clients.Count} client(s) have disconnected! Remaining: {Clients.Count}");
-                });
-                msgSend.Start();
+               /* });
+                msgSend.Start();*/
                 //Console.WriteLine(" >> " + message);
 
             }
@@ -279,4 +300,5 @@ namespace Server
 
 
     }
+    
 }

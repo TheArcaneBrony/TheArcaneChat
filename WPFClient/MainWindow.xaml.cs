@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Media.Animation;
 using Application = System.Windows.Forms.Application;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 
@@ -136,8 +135,41 @@ namespace WPFClient
                             returndata = Encoding.Unicode.GetString(inStream.ToArray());
                         }
 
+
                         returndata = returndata.Replace("\0MSGEND\0", "");
-                        Dispatcher.Invoke(new MethodInvoker(() => { LbChat.Items.Add(returndata); }));
+
+                        if (returndata.StartsWith("\0SRVMSG\0"))
+                        {
+                            switch (returndata.Replace("\0SRVMSG\0", ""))
+                            {
+                                case "ping":
+                                   // Send("\0CLIMSG\0ping");
+                                    break;
+                                case "exit":
+                                    break;
+                            }
+
+                        }
+                        else
+                        {
+                            Dispatcher.Invoke(new MethodInvoker(() =>
+                            {
+                                //LbChat.Items.Add(returndata);
+
+                                var test = new Message();
+                                test.Username = Username;
+                                test.MessageText = returndata;
+
+                                test.ProfilePicURL = "https://cdn.discordapp.com/avatars/84022289024159744/a_f53385b99292bb3c6cd595b197988d7a.gif?size=1024";
+                                test.Path = "https://vignette.wikia.nocookie.net/goanimate-v2/images/d/df/Vector_138_pinkie_pie_9_by_dashiesparkle-d8npl5m.png/revision/latest?cb=20150424155451";
+                                LbChat.Items.Add(test);
+                            }));
+                        }
+
+
+
+
+
                         new Task(() =>
                         {
                             new SoundPlayer(@"C:\Windows\Media\Windows Default.wav").Play();
@@ -155,6 +187,8 @@ namespace WPFClient
         }
         public void Init(string username)
         {
+            Username = username;
+            
             try
             {
 #if DEBUG
@@ -186,5 +220,12 @@ namespace WPFClient
             Title = $"TheArcaneChat [WPF] -=- Version {VersionString} -=- {title}";
             WindowTitle.Content = Title;
         }
+    }
+    public class Message
+    {
+        public string Username { get; set; }
+        public string MessageText { get; set; }
+        public string ProfilePicURL { get; set; }
+        public string Path { get; set; }
     }
 }
