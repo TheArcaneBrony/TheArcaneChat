@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Timer = System.Threading.Timer;
 
+
 namespace Server
 {
     public partial class GarbageWindow : Form
@@ -21,21 +22,26 @@ namespace Server
         {
             InitializeComponent();
         }
+        private void GarbageWindow_Paint(object sender, PaintEventArgs e)
+        {
+            Text = $"Clients: {Clients.Count} | {StopWatch.Elapsed.ToString()}";
+        }
         private void Form1_Load(object sender, EventArgs e)
         {
-            Hide();
-            ShowIcon = false;
-            ShowInTaskbar = false;
-            FormBorderStyle = FormBorderStyle.None;
+            //   Hide();
+            // ShowIcon = false;
+            // ShowInTaskbar = false;
+            // FormBorderStyle = FormBorderStyle.None;
             StopWatch.Start();
             Console.Title = "TheArcaneChat Server -=- v1.0.0";
+
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.White;
             Console.Clear();
 
             ServerSocket.Start();
-            Console.WriteLine(" >> Server Started");
-            Visible = false;
+            Log(" >> Server Started");
+            //Visible = false;
             new Thread(() =>
             {
                 //serverSocket.Server.Listen(1000);
@@ -47,7 +53,7 @@ namespace Server
                         while (!ServerSocket.Pending()) Thread.Sleep(5);
 
                         ClientSocket = ServerSocket.AcceptTcpClient();
-                        //Console.WriteLine($" >> Client No: {_counter++} started!");
+                        //Log($" >> Client No: {_counter++} started!");
                         Clients.Add(ClientSocket);
                         new HandleClient().StartClient(ClientSocket, _counter);
                         _counter++;
@@ -55,16 +61,18 @@ namespace Server
                         {
                             new SoundPlayer(@"C:\Windows\Media\Speech On.wav").Play();
                         }).Start();
+                        this.Invoke(new MethodInvoker(()=> { ConnectionCount.Text = $"Connected clients: {Clients.Count}"; }));
 
                     }
                     catch (Exception exception)
                     {
-                        Console.WriteLine(exception);
+                        //Log(exception);
                     }
                 }
 
             }).Start();
         }
+
 
         public TcpListener ServerSocket = new TcpListener(IPAddress.Any, 8888);
         public TcpClient ClientSocket;
@@ -73,67 +81,65 @@ namespace Server
         {
             try
             {
-               /* var msgSend = new Task(() =>
-                {*/
-                    var sendBytes = Encoding.Unicode.GetBytes("\0SRVMSG\0ping".Replace("\n", "\0MSGEND\0") + "\0MSGEND\0");
-                    var tmpCli = Clients;
+                /* var msgSend = new Task(() =>
+                 {*/
+                var sendBytes = Encoding.Unicode.GetBytes("\0SRVMSG\0ping".Replace("\n", "\0MSGEND\0") + "\0MSGEND\0");
+                var tmpCli = Clients;
 
-                    var oldNumcli = Clients.Count;
-                    Console.Title = tmpCli.Count + "";
-                    try
+                var oldNumcli = Clients.Count;
+                Console.Title = tmpCli.Count + "";
+                try
+                {
+                    foreach (var client in tmpCli)
                     {
-                        foreach (var client in tmpCli)
+                        try
                         {
-                            try
-                            {
 
-                                var networkStream = client.GetStream();
-                                networkStream.Write(sendBytes, 0, sendBytes.Length);
-                            }
-                            catch
-                            {
-                                Clients.Remove(client);
-                            }
+                            var networkStream = client.GetStream();
+                            networkStream.Write(sendBytes, 0, sendBytes.Length);
+                        }
+                        catch
+                        {
+                            Clients.Remove(client);
                         }
                     }
-                    catch (Exception e)
+                }
+                catch { }
+                sendBytes = Encoding.Unicode.GetBytes(message.Replace("\n", "\0MSGEND\0") + "\0MSGEND\0");
+                try
+                {
+                    foreach (var client in tmpCli)
                     {
-                    }
-                    sendBytes = Encoding.Unicode.GetBytes(message.Replace("\n", "\0MSGEND\0") + "\0MSGEND\0");
-                    try
-                    {
-                        foreach (var client in tmpCli)
+                        var cl = client;
+                        try
                         {
-                            var cl = client;
-                            try
-                            {
-                                var networkStream = cl.GetStream();
-                                networkStream.Write(sendBytes, 0, sendBytes.Length);
+                            var networkStream = cl.GetStream();
+                            networkStream.Write(sendBytes, 0, sendBytes.Length);
 
-                            }
-                            catch
-                            {
-                                Clients.Remove(cl);
-                            }
+                        }
+                        catch
+                        {
+                            Clients.Remove(cl);
                         }
                     }
-                    catch (Exception e)
-                    {
-                      //  Console.WriteLine(e);
-                    }
-                    if (Clients.Count < oldNumcli) Console.WriteLine($"{oldNumcli - Clients.Count} client(s) have disconnected! Remaining: {Clients.Count}");
-               /* });
-                msgSend.Start();*/
-                //Console.WriteLine(" >> " + message);
+                }
+                catch (Exception e)
+                {
+                    //  Log(e);
+                }
+                if (Clients.Count < oldNumcli) Log($"{oldNumcli - Clients.Count} client(s) have disconnected! Remaining: {Clients.Count}");
+                /* });
+                 msgSend.Start();*/
+                //Log(" >> " + message);
 
             }
             catch
             {
-                Console.WriteLine("fuck this shit");
+                Log("fuck this shit");
                 // ignored
             }
 
-           // InvokeQueue.Add(() => ConnectionCount.Text = $"Connected clients: {Clients.Count}");
+            // InvokeQueue.Add(() => ConnectionCount.Text = $"Connected clients: {Clients.Count}");
         }
         public static void WhisperMessage(TcpClient Client, string Message)
         {
@@ -149,11 +155,11 @@ namespace Server
                 catch
                 {
                     Clients.Remove(Client);
-                    Console.WriteLine("WTF? Whisper failed!");
+                    Log("WTF? Whisper failed!");
                     //BroadcastMessage("A client has logged off! (MessageTransmitFailedException!)");
                 }
 
-                Console.WriteLine(" >> " + Message);
+                Log(" >> " + Message);
             }
             catch
             {
@@ -164,6 +170,11 @@ namespace Server
         private void Label1_Click(object sender, EventArgs e)
         {
 
+        }
+        public static void Log(string text)
+        {
+            LogBox.Items.Add(text);
+            Console.WriteLine(text);
         }
     }
     //Class to handle each client request separatly
@@ -184,7 +195,7 @@ namespace Server
             var requestCount = 0;
             var error = 0;
             var username = $"User_{new Random().Next(0, 1000)}";
-            Console.WriteLine($"Client #{_clNo} connected, IP: {_clientSocket.Client.RemoteEndPoint}");
+            GarbageWindow.Log($"Client #{_clNo} connected, IP: {_clientSocket.Client.RemoteEndPoint}");
             while (error < 1)
             {
                 Thread.Sleep(100);
@@ -196,7 +207,7 @@ namespace Server
                     networkStream.Read(bytesFrom, 0, bytesFrom.Length);
                     var utf8string = Encoding.UTF8.GetString(bytesFrom).TrimEnd('\0');
 
-                   // Console.WriteLine(utf8string);
+                    // GarbageWindow.Log(utf8string);
                     if (utf8string.Contains("GET") && utf8string.Contains("HTTP/1.1"))
                     {
                         var sendBytes = Encoding.UTF8.GetBytes("ARCANECHAT_SERVER.HTTP_BOT_FOUND_EXCEPTION: Nice attempt to connect to this server using a web browser, real clever...\nDid you really thing I am **THAT** stupid?");
@@ -216,7 +227,7 @@ namespace Server
                         break;
                     }
                     string dataFromClient = Encoding.Unicode.GetString(bytesFrom).TrimEnd('\0');
-                    Console.WriteLine($"#{_clNo}: \"{dataFromClient}\"");
+                    GarbageWindow.Log($"#{_clNo}: \"{dataFromClient}\"");
                     if (dataFromClient.StartsWith("\0CLIMSG\0"))
                     {
                         switch (dataFromClient.Replace("\0CLIMSG\0", ""))
@@ -234,7 +245,7 @@ namespace Server
                         switch (dataFromClient.Replace("\0cmd\0", "").Split(' ')[0].ToLower().Trim())
                         {
                             case "nick":
-                                username = dataFromClient.Replace("\0cmd\0nick","");
+                                username = dataFromClient.Replace("\0cmd\0nick", "");
                                 break;
                             case "logon":
                                 username = dataFromClient.Replace("\0cmd\0logon", "");
@@ -281,7 +292,7 @@ namespace Server
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Exception occurred with a client: " + ex.StackTrace);
+                    GarbageWindow.Log("Exception occurred with a client: " + ex.StackTrace);
                     _clientSocket.Close();
 
                     error++;
@@ -300,5 +311,5 @@ namespace Server
 
 
     }
-    
+
 }

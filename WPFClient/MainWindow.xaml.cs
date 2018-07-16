@@ -31,10 +31,10 @@ namespace WPFClient
 
             var cw = new ConnectingWindow(this);
 #if DEBUG
-            if(File.Exists(@"C:\TheArcaneBrony.txt"))
-            Init("TheArcaneBrony");
+            if (File.Exists(@"C:\TheArcaneBrony.txt"))
+                Init("TheArcaneBrony");
             else
-            Init(Username);
+                Init(Username);
 #else
             cw.Show();
 #endif
@@ -76,7 +76,7 @@ namespace WPFClient
 
         private void TitlebarOnMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if(e.MouseDevice.DirectlyOver != CloseButton && e.MouseDevice.DirectlyOver != WindowStateButton && e.MouseDevice.DirectlyOver != MinimiseButton && e.LeftButton == MouseButtonState.Pressed) { DragMove(); }
+            if (e.MouseDevice.DirectlyOver != CloseButton && e.MouseDevice.DirectlyOver != WindowStateButton && e.MouseDevice.DirectlyOver != MinimiseButton && e.LeftButton == MouseButtonState.Pressed) { DragMove(); }
         }
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
@@ -108,7 +108,7 @@ namespace WPFClient
                 TxbInput.Text = "";
                 _serverStream.Write(sendBytes, 0, sendBytes.Length);
             }
-            catch (Exception e)
+            catch
             {
                 LbChat.Items.Add("Connection failure, reconnecting~!");
                 Init(Username);
@@ -143,7 +143,7 @@ namespace WPFClient
                             switch (returndata.Replace("\0SRVMSG\0", ""))
                             {
                                 case "ping":
-                                   // Send("\0CLIMSG\0ping");
+                                    // Send("\0CLIMSG\0ping");
                                     break;
                                 case "exit":
                                     break;
@@ -156,12 +156,14 @@ namespace WPFClient
                             {
                                 //LbChat.Items.Add(returndata);
 
+
                                 var test = new Message();
                                 test.Username = Username;
                                 test.MessageText = returndata;
 
-                                test.ProfilePicURL = "https://cdn.discordapp.com/avatars/84022289024159744/a_f53385b99292bb3c6cd595b197988d7a.gif?size=1024";
-                                test.Path = "https://vignette.wikia.nocookie.net/goanimate-v2/images/d/df/Vector_138_pinkie_pie_9_by_dashiesparkle-d8npl5m.png/revision/latest?cb=20150424155451";
+                                //test.ProfilePicURL = "https://cdn.discordapp.com/avatars/84022289024159744/a_f53385b99292bb3c6cd595b197988d7a.gif?size=1024";
+                                //test.Path = "https://vignette.wikia.nocookie.net/goanimate-v2/images/d/df/Vector_138_pinkie_pie_9_by_dashiesparkle-d8npl5m.png/revision/latest?cb=20150424155451";
+                                test.Path = @"C:\deviantART\Laszl\blown_mane_fluttershy_by_laszl-dbb2k19.png";
                                 LbChat.Items.Add(test);
                             }));
                         }
@@ -188,7 +190,7 @@ namespace WPFClient
         public void Init(string username)
         {
             Username = username;
-            
+
             try
             {
 #if DEBUG

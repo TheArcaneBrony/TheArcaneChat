@@ -11,7 +11,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPFClient", "WPFClient\WPFC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Updater", "Updater\Updater.csproj", "{B3189451-EA6A-42B7-9CD0-F3C0DB53B77A}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "1SharedCode", "SharedCode\1SharedCode.shproj", "{AF8396AE-029B-436B-9AE9-D2AE6024CC4C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Non-important projects", "Non-important projects", "{38EE0314-466A-4548-B85B-B38376D44491}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		SharedCode\SharedCode.projitems*{af8396ae-029b-436b-9ae9-d2ae6024cc4c}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
@@ -52,6 +59,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F1A83FE3-DD51-4444-8406-EF042A1D9DD5} = {38EE0314-466A-4548-B85B-B38376D44491}
+		{B3189451-EA6A-42B7-9CD0-F3C0DB53B77A} = {38EE0314-466A-4548-B85B-B38376D44491}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4B2C3D6C-A540-4368-BF72-80EA161FE92F}
