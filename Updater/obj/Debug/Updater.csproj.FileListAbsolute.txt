@@ -8,3 +8,13 @@ F:\thearcanechat\Updater\bin\Debug\ArcaneChat_Updater.pdb
 F:\thearcanechat\Updater\obj\Debug\Updater.csproj.CoreCompileInputs.cache
 F:\thearcanechat\Updater\obj\Debug\ArcaneChat_Updater.exe
 F:\thearcanechat\Updater\obj\Debug\ArcaneChat_Updater.pdb
+C:\Users\TheArcaneBrony\Desktop\TheArcaneChat\Updater\bin\Debug\ArcaneChatUpd.exe.config
+C:\Users\TheArcaneBrony\Desktop\TheArcaneChat\Updater\bin\Debug\ArcaneChatUpd.exe
+C:\Users\TheArcaneBrony\Desktop\TheArcaneChat\Updater\bin\Debug\ArcaneChatUpd.pdb
+C:\Users\TheArcaneBrony\Desktop\TheArcaneChat\Updater\obj\Debug\Updater.csprojAssemblyReference.cache
+C:\Users\TheArcaneBrony\Desktop\TheArcaneChat\Updater\obj\Debug\Updater.Form1.resources
+C:\Users\TheArcaneBrony\Desktop\TheArcaneChat\Updater\obj\Debug\Updater.Properties.Resources.resources
+C:\Users\TheArcaneBrony\Desktop\TheArcaneChat\Updater\obj\Debug\Updater.csproj.GenerateResource.cache
+C:\Users\TheArcaneBrony\Desktop\TheArcaneChat\Updater\obj\Debug\Updater.csproj.CoreCompileInputs.cache
+C:\Users\TheArcaneBrony\Desktop\TheArcaneChat\Updater\obj\Debug\ArcaneChatUpd.exe
+C:\Users\TheArcaneBrony\Desktop\TheArcaneChat\Updater\obj\Debug\ArcaneChatUpd.pdb

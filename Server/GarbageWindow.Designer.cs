@@ -109,7 +109,6 @@ namespace Server
 
         private CircularProgressBar.CircularProgressBar CPBTest;
         private Label ConnectionCount;
-        private  ListBox LogBox;
+        private ListBox LogBox;
     }
 }
-

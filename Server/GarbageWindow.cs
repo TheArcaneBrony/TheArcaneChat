@@ -16,8 +16,8 @@ namespace Server
 {
     public partial class GarbageWindow : Form
     {
-        public static List<TcpClient> Clients = new List<TcpClient>();
-        public static Stopwatch StopWatch = new Stopwatch();
+        public List<TcpClient> Clients = new List<TcpClient>();
+        public Stopwatch StopWatch = new Stopwatch();
         public GarbageWindow()
         {
             InitializeComponent();
@@ -55,7 +55,7 @@ namespace Server
                         ClientSocket = ServerSocket.AcceptTcpClient();
                         //Log($" >> Client No: {_counter++} started!");
                         Clients.Add(ClientSocket);
-                        new HandleClient().StartClient(ClientSocket, _counter);
+                        new HandleClient(this).StartClient(ClientSocket, _counter);
                         _counter++;
                         new Task(() =>
                         {
@@ -77,7 +77,7 @@ namespace Server
         public TcpListener ServerSocket = new TcpListener(IPAddress.Any, 8888);
         public TcpClient ClientSocket;
         private int _counter;
-        public static void BroadcastMessage(string message)
+        public void BroadcastMessage(string message)
         {
             try
             {
@@ -141,7 +141,7 @@ namespace Server
 
             // InvokeQueue.Add(() => ConnectionCount.Text = $"Connected clients: {Clients.Count}");
         }
-        public static void WhisperMessage(TcpClient Client, string Message)
+        public void WhisperMessage(TcpClient Client, string Message)
         {
             try
             {
@@ -171,7 +171,7 @@ namespace Server
         {
 
         }
-        public static void Log(string text)
+        public void Log(string text)
         {
             LogBox.Items.Add(text);
             Console.WriteLine(text);
@@ -180,6 +180,13 @@ namespace Server
     //Class to handle each client request separatly
     public class HandleClient
     {
+        private GarbageWindow gw;
+
+        public HandleClient(GarbageWindow _gw)
+        {
+            gw = _gw;
+        }
+        
         TcpClient _clientSocket;
         int _clNo;
         public void StartClient(TcpClient inClientSocket, int cliNo)
@@ -195,7 +202,7 @@ namespace Server
             var requestCount = 0;
             var error = 0;
             var username = $"User_{new Random().Next(0, 1000)}";
-            GarbageWindow.Log($"Client #{_clNo} connected, IP: {_clientSocket.Client.RemoteEndPoint}");
+            gw.Log($"Client #{_clNo} connected, IP: {_clientSocket.Client.RemoteEndPoint}");
             while (error < 1)
             {
                 Thread.Sleep(100);
@@ -207,7 +214,7 @@ namespace Server
                     networkStream.Read(bytesFrom, 0, bytesFrom.Length);
                     var utf8string = Encoding.UTF8.GetString(bytesFrom).TrimEnd('\0');
 
-                    // GarbageWindow.Log(utf8string);
+                    // gw.Log(utf8string);
                     if (utf8string.Contains("GET") && utf8string.Contains("HTTP/1.1"))
                     {
                         var sendBytes = Encoding.UTF8.GetBytes("ARCANECHAT_SERVER.HTTP_BOT_FOUND_EXCEPTION: Nice attempt to connect to this server using a web browser, real clever...\nDid you really thing I am **THAT** stupid?");
@@ -222,20 +229,20 @@ namespace Server
                         {
                         }
                         networkStream.Close();
-                        GarbageWindow.Clients.Remove(_clientSocket);
-                        GarbageWindow.BroadcastMessage("Kicked user attempting HTTP tapping");
+                        gw.Clients.Remove(_clientSocket);
+                        gw.BroadcastMessage("Kicked user attempting HTTP tapping");
                         break;
                     }
                     string dataFromClient = Encoding.Unicode.GetString(bytesFrom).TrimEnd('\0');
-                    GarbageWindow.Log($"#{_clNo}: \"{dataFromClient}\"");
+                    gw.Log($"#{_clNo}: \"{dataFromClient}\"");
                     if (dataFromClient.StartsWith("\0CLIMSG\0"))
                     {
                         switch (dataFromClient.Replace("\0CLIMSG\0", ""))
                         {
                             case "exit":
-                                GarbageWindow.Clients.Remove(_clientSocket);
+                                gw.Clients.Remove(_clientSocket);
                                 _clientSocket.Close();
-                                GarbageWindow.BroadcastMessage($"Client { _clNo } logged off!");
+                                gw.BroadcastMessage($"Client { _clNo } logged off!");
                                 break;
                         }
 
@@ -249,7 +256,7 @@ namespace Server
                                 break;
                             case "logon":
                                 username = dataFromClient.Replace("\0cmd\0logon", "");
-                                GarbageWindow.BroadcastMessage($"Welcome {username} (#{_clNo} since server launch, {GarbageWindow.Clients.Count} currently logged in)");
+                                gw.BroadcastMessage($"Welcome {username} (#{_clNo} since server launch, {gw.Clients.Count} currently logged in)");
                                 break;
                         }
 
@@ -259,25 +266,25 @@ namespace Server
                         switch ((dataFromClient.Remove(0, 1) + " ").Split(' ')[0].ToLower().Trim())
                         {
                             case "cli":
-                                GarbageWindow.BroadcastMessage("*working*");
-                                GarbageWindow.BroadcastMessage($"SERVER BROADCAST: --CLIENTS CONNECTED: {GarbageWindow.Clients.Count}--");
+                                gw.BroadcastMessage("*working*");
+                                gw.BroadcastMessage($"SERVER BROADCAST: --CLIENTS CONNECTED: {gw.Clients.Count}--");
                                 break;
                             case "nick":
                                 username = dataFromClient.Split(" ".ToCharArray(), 2)[1];
-                                GarbageWindow.WhisperMessage(_clientSocket, "Your nickname has been changed to " + username);
+                                gw.WhisperMessage(_clientSocket, "Your nickname has been changed to " + username);
                                 break;
                             case "serverinfo":
-                                GarbageWindow.BroadcastMessage($"Server memory usage: {GC.GetTotalMemory(false)} bytes\nConnection count: {GarbageWindow.Clients.Count}\nUptime: {GarbageWindow.StopWatch.Elapsed.ToString()}\nHost machine name: {Environment.MachineName}");
+                                gw.BroadcastMessage($"Server memory usage: {GC.GetTotalMemory(false)} bytes\nConnection count: {gw.Clients.Count}\nUptime: {gw.StopWatch.Elapsed.ToString()}\nHost machine name: {Environment.MachineName}");
                                 break;
                             case "userinfo":
-                                GarbageWindow.BroadcastMessage($"Client number: {_clNo}\nJoin time: {joinTime.ToLongTimeString()}\nConnection time: {DateTime.Now.Subtract(joinTime)}");
+                                gw.BroadcastMessage($"Client number: {_clNo}\nJoin time: {joinTime.ToLongTimeString()}\nConnection time: {DateTime.Now.Subtract(joinTime)}");
                                 break;
 
                             case "clilist":
-                                var clis = GarbageWindow.Clients;
+                                var clis = gw.Clients;
                                 foreach (var cli in clis)
                                 {
-                                    GarbageWindow.BroadcastMessage($"Client #{_clNo}: {username} ");
+                                    gw.BroadcastMessage($"Client #{_clNo}: {username} ");
                                 }
                                 break;
                         }
@@ -285,14 +292,14 @@ namespace Server
                     }
                     else
                     {
-                        GarbageWindow.BroadcastMessage($"{_clNo} - {username}: {dataFromClient}");
+                        gw.BroadcastMessage($"{_clNo} - {username}: {dataFromClient}");
                     }
 
 
                 }
                 catch (Exception ex)
                 {
-                    GarbageWindow.Log("Exception occurred with a client: " + ex.StackTrace);
+                    gw.Log("Exception occurred with a client: " + ex.StackTrace);
                     _clientSocket.Close();
 
                     error++;
